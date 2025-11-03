@@ -22,7 +22,7 @@ const EditProject = () => {
     const [cohorts, setCohorts] = useState([]);
     const [ownerName, setOwnerName] = useState('');
     const [members, setMembers] = useState([]);
-    const [memberName, setMemberName] = useState('');
+    const [memberEmail, setMemberEmail] = useState('');
     const [error, setError] = useState('');
 
     useEffect(() => {
@@ -68,6 +68,15 @@ const EditProject = () => {
             if (project.owner) {
                 setOwnerName(project.owner.name || project.owner.email);
             }
+
+            // Set existing members (convert to email list for backend compatibility)
+            if (project.members && Array.isArray(project.members)) {
+                setMembers(project.members.map(member => ({
+                    email: member.email,
+                    name: member.name,
+                    id: member.id
+                })));
+            }
         } catch (error) {
             console.error('Error fetching project:', error);
             alert('Failed to load project');
@@ -78,14 +87,31 @@ const EditProject = () => {
     };
 
     const handleAddMember = () => {
-        if (!memberName.trim()) return;
+        if (!memberEmail.trim()) {
+            setError('Please enter a valid email address');
+            return;
+        }
+
+        // Basic email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(memberEmail.trim())) {
+            setError('Please enter a valid email address');
+            return;
+        }
+
+        // Check if email already exists in members list
+        if (members.some(member => member.email === memberEmail.trim())) {
+            setError('This member has already been added');
+            return;
+        }
 
         const newMember = {
-            name: memberName.trim(),
+            email: memberEmail.trim(),
+            name: memberEmail.trim().split('@')[0], // Use email prefix as display name temporarily
         };
 
         setMembers([...members, newMember]);
-        setMemberName('');
+        setMemberEmail('');
         setError('');
     };
 
@@ -102,20 +128,23 @@ const EditProject = () => {
         }
 
         try {
+            // Send only email addresses to backend (as per backend API requirement)
+            const memberEmails = members.map(member => member.email);
+
             await projectsAPI.update(id, {
                 name: formData.name,
                 description: formData.description,
                 github_link: formData.github_link,
                 class_id: formData.class_id ? parseInt(formData.class_id) : null,
                 cohort_id: formData.cohort_id ? parseInt(formData.cohort_id) : null,
-                members: members, // Just pass member names as part of project data
+                members: memberEmails, // Send array of email addresses
             });
 
-            alert('Project updated successfully');
+            alert('Project updated successfully! Invitations have been sent to new members.');
             navigate(`/projects/${id}`);
         } catch (error) {
             console.error('Error updating project:', error);
-            alert('Failed to update project');
+            alert(error.message || 'Failed to update project');
         }
     };
 
@@ -244,23 +273,26 @@ const EditProject = () => {
                         {/* Members */}
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Members
+                                Team Members
                             </label>
+                            <p className="text-sm text-gray-500 mb-3">
+                                Add team members by their email address. They will receive an invitation to join the project.
+                            </p>
                             {error && (
                                 <div className="mb-2 text-red-500 text-sm">{error}</div>
                             )}
                             <div className="flex gap-2">
                                 <input
-                                    type="text"
-                                    value={memberName}
-                                    onChange={(e) => setMemberName(e.target.value)}
+                                    type="email"
+                                    value={memberEmail}
+                                    onChange={(e) => setMemberEmail(e.target.value)}
                                     onKeyDown={(e) => {
                                         if (e.key === 'Enter') {
                                             e.preventDefault();
                                             handleAddMember();
                                         }
                                     }}
-                                    placeholder="Enter member name"
+                                    placeholder="Enter member email address"
                                     className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 />
                                 <button
@@ -284,6 +316,9 @@ const EditProject = () => {
                                             <div>
                                                 <p className="text-sm font-medium text-gray-900">
                                                     {member.name}
+                                                </p>
+                                                <p className="text-xs text-gray-500">
+                                                    {member.email}
                                                 </p>
                                             </div>
                                             <button
