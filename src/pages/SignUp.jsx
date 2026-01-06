@@ -11,7 +11,7 @@ const SignUp = () => {
         email: '',
         password: '',
         confirm_password: '',
-        role: 'Student',
+        role: 'Employee',
     });
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
@@ -123,8 +123,8 @@ const SignUp = () => {
                             onChange={handleChange}
                             className="w-full py-3 pl-4 pr-4 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                         >
-                            <option value="Student">Student</option>
-                            <option value="Admin">Admin</option>
+                            <option value="Employee">Employee</option>
+                            <option value="Manager">Manager</option>
                         </select>
                     </div>
 

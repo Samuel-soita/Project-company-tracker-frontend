@@ -34,10 +34,10 @@ const AdminDashboard = () => {
             if (activeTab === 'projects') {
                 const response = await projectsAPI.getAll();
                 setProjects(response.items || []);
-            } else if (activeTab === 'cohorts') {
+            } else if (activeTab === 'teams') {
                 const response = await cohortsAPI.getAll();
                 setCohorts(response.items || []);
-            } else if (activeTab === 'classes') {
+            } else if (activeTab === 'project-types') {
                 const response = await classesAPI.getAll();
                 setClasses(Array.isArray(response) ? response : []);
             }
@@ -224,11 +224,11 @@ const AdminDashboard = () => {
         </div>
     );
 
-    const CohortsTab = () => (
+    const TeamsTab = () => (
         <div>
             <div className="flex justify-between items-center mb-6">
                 <h2 className="text-xl font-bold">
-                    Total Cohorts
+                    Total Teams
                     <span className="ml-3 text-2xl">{cohorts.length}</span>
                 </h2>
                 <button
@@ -283,11 +283,11 @@ const AdminDashboard = () => {
         </div>
     );
 
-    const ClassesTab = () => (
+    const ProjectTypesTab = () => (
         <div>
             <div className="flex justify-between items-center mb-6">
                 <h2 className="text-xl font-bold">
-                    Total Classes
+                    Total Project Types
                     <span className="ml-3 text-2xl">{classes.length}</span>
                 </h2>
                 <button
@@ -339,7 +339,7 @@ const AdminDashboard = () => {
                     <div className="flex justify-between items-center">
                         <div>
                             <h1 className="text-2xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
-                                Admin Dashboard
+                                Manager Dashboard
                             </h1>
                             <p className="text-gray-600 mt-1 text-sm">Manage your platform</p>
                         </div>
@@ -378,22 +378,22 @@ const AdminDashboard = () => {
                         Projects
                     </button>
                     <button
-                        onClick={() => setActiveTab('cohorts')}
+                        onClick={() => setActiveTab('teams')}
                         className={`flex-1 px-6 py-3 font-semibold rounded-lg transition-all duration-200 ${activeTab === 'cohorts'
                                 ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-md'
                                 : 'text-gray-600 hover:bg-gray-100'
                             }`}
                     >
-                        Cohorts
+                        Teams
                     </button>
                     <button
-                        onClick={() => setActiveTab('classes')}
+                        onClick={() => setActiveTab('project-types')}
                         className={`flex-1 px-6 py-3 font-semibold rounded-lg transition-all duration-200 ${activeTab === 'classes'
                                 ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-md'
                                 : 'text-gray-600 hover:bg-gray-100'
                             }`}
                     >
-                        Classes
+                        Project Types
                     </button>
                 </div>
 
@@ -406,8 +406,8 @@ const AdminDashboard = () => {
                 ) : (
                     <>
                         {activeTab === 'projects' && <ProjectsTab />}
-                        {activeTab === 'cohorts' && <CohortsTab />}
-                        {activeTab === 'classes' && <ClassesTab />}
+                        {activeTab === 'teams' && <TeamsTab />}
+                        {activeTab === 'project-types' && <ProjectTypesTab />}
                     </>
                 )}
             </main>

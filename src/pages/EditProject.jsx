@@ -9,7 +9,7 @@ import { ArrowLeft, Plus, Trash2 } from 'lucide-react';
 const EditProject = () => {
     const { id } = useParams();
     const navigate = useNavigate();
-    const { user, isAdmin } = useAuth();
+    const { user, isManager } = useAuth();
     const [loading, setLoading] = useState(true);
     const [formData, setFormData] = useState({
         name: '',
@@ -50,7 +50,7 @@ const EditProject = () => {
             const project = response.project;
 
             // Check if user has permission to edit
-            if (!isAdmin() && project.owner_id !== user?.id) {
+            if (!isManager() && project.owner_id !== user?.id) {
                 alert('You do not have permission to edit this project');
                 navigate(`/projects/${id}`);
                 return;

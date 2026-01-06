@@ -34,16 +34,25 @@ const Login = () => {
                 navigate('/dashboard');
             }
         } catch (err) {
-            setError(err.message || 'Invalid email or password');
+            // Handle different types of errors
+            if (err.code === 'NETWORK_ERROR') {
+                setError('Unable to connect to the server. Please check your connection and ensure the backend server is running.');
+            } else if (err.message.includes('Too many requests')) {
+                setError('Too many login attempts. Please wait a moment before trying again.');
+            } else if (err.message.includes('Authentication failed') || err.message.includes('Invalid email or password')) {
+                setError('Invalid email or password. Please check your credentials.');
+            } else {
+                setError(err.message || 'Login failed. Please try again.');
+            }
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 flex items-center justify-center p-4">
+        <div className="min-h-screen bg-gradient-to-br from-gray-50 via-orange-50 to-red-50 flex items-center justify-center p-4">
             <div className="bg-white/90 backdrop-blur-md rounded-2xl shadow-xl p-10 w-full max-w-md border border-gray-200">
-                <h2 className="text-3xl font-bold text-center bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-8">
+                <h2 className="text-3xl font-bold text-center bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent mb-8">
                     Login
                 </h2>
 
@@ -63,7 +72,7 @@ const Login = () => {
                             value={formData.email}
                             onChange={handleChange}
                             required
-                            className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                            className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
                         />
                     </div>
 
@@ -76,14 +85,14 @@ const Login = () => {
                             value={formData.password}
                             onChange={handleChange}
                             required
-                            className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                            className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
                         />
                     </div>
 
                     <button
                         type="submit"
                         disabled={loading}
-                        className="w-full py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-medium text-lg hover:shadow-lg transition-all duration-200 disabled:opacity-50"
+                        className="w-full py-3 bg-gradient-to-r from-orange-600 to-red-600 text-white rounded-xl font-medium text-lg hover:shadow-lg transition-all duration-200 disabled:opacity-50"
                     >
                         {loading ? 'Logging in...' : 'Login'}
                     </button>
@@ -91,14 +100,14 @@ const Login = () => {
 
                 <p className="text-center text-sm text-gray-600 mt-6">
                     Don't have an account?{' '}
-                    <Link to="/signup" className="text-blue-600 hover:underline">
+                    <Link to="/signup" className="text-orange-600 hover:underline">
                         Sign up
                     </Link>
                 </p>
 
                 <p className="text-center text-sm text-gray-500 mt-2">
                     Forgot password?{' '}
-                    <Link to="/reset-password" className="text-blue-600 hover:underline">
+                    <Link to="/reset-password" className="text-orange-600 hover:underline">
                         Reset here
                     </Link>
                 </p>

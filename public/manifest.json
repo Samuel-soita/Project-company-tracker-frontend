@@ -1,0 +1,34 @@
+{
+    "name": "Project Tracker",
+    "short_name": "ProjectTracker",
+    "description": "A modern project management tool for tracking student projects and tasks",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#f3f4f6",
+    "theme_color": "#ea580c",
+    "orientation": "portrait-primary",
+    "categories": ["productivity", "education"],
+    "lang": "en-US",
+    "icons": [
+        {
+            "src": "/vite.svg",
+            "sizes": "any",
+            "type": "image/svg+xml",
+            "purpose": "any"
+        }
+    ],
+    "shortcuts": [
+        {
+            "name": "My Projects",
+            "short_name": "Projects",
+            "description": "View my projects",
+            "url": "/dashboard",
+            "icons": [
+                {
+                    "src": "/vite.svg",
+                    "sizes": "any"
+                }
+            ]
+        }
+    ]
+}

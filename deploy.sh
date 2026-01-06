@@ -1,8 +1,195 @@
-# CI/CD Implementation Summary
+#!/bin/bash
 
-## Overview
+# Company Project Manager - Deployment Script
+# This script builds and deploys the application to Vercel
 
-This project now has a complete CI/CD pipeline that automatically tests, builds, and deploys your application to Vercel.
+set -e  # Exit on any error
+
+echo "🚀 Company Project Manager - Deployment Script"
+echo "=============================================="
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# Function to print colored output
+print_status() {
+    echo -e "${BLUE}[INFO]${NC} $1"
+}
+
+print_success() {
+    echo -e "${GREEN}[SUCCESS]${NC} $1"
+}
+
+print_warning() {
+    echo -e "${YELLOW}[WARNING]${NC} $1"
+}
+
+print_error() {
+    echo -e "${RED}[ERROR]${NC} $1"
+}
+
+# Check if required tools are installed
+check_dependencies() {
+    print_status "Checking dependencies..."
+
+    if ! command -v node &> /dev/null; then
+        print_error "Node.js is not installed. Please install Node.js first."
+        exit 1
+    fi
+
+    if ! command -v npm &> /dev/null; then
+        print_error "npm is not installed. Please install npm first."
+        exit 1
+    fi
+
+    if ! command -v git &> /dev/null; then
+        print_error "Git is not installed. Please install Git first."
+        exit 1
+    fi
+
+    print_success "All dependencies are installed"
+}
+
+# Run tests
+run_tests() {
+    print_status "Running tests..."
+
+    if npm test -- --watchAll=false --passWithNoTests; then
+        print_success "All tests passed"
+    else
+        print_error "Tests failed. Please fix the issues before deploying."
+        exit 1
+    fi
+}
+
+# Run linting
+run_lint() {
+    print_status "Running linter..."
+
+    if npm run lint; then
+        print_success "Linting passed"
+    else
+        print_warning "Linting found issues, but continuing with deployment..."
+    fi
+}
+
+# Build the application
+build_app() {
+    print_status "Building application for production..."
+
+    if npm run build; then
+        print_success "Build completed successfully"
+    else
+        print_error "Build failed. Please check the build logs."
+        exit 1
+    fi
+}
+
+# Check if Vercel CLI is installed
+check_vercel_cli() {
+    if ! command -v vercel &> /dev/null; then
+        print_warning "Vercel CLI is not installed."
+        print_status "Installing Vercel CLI..."
+        npm install -g vercel
+        print_success "Vercel CLI installed"
+    fi
+}
+
+# Deploy to Vercel
+deploy_to_vercel() {
+    local deploy_type="$1"
+
+    check_vercel_cli
+
+    print_status "Deploying to Vercel..."
+
+    if [ "$deploy_type" = "production" ]; then
+        print_status "Deploying to production..."
+        vercel --prod
+    else
+        print_status "Deploying to preview environment..."
+        vercel
+    fi
+
+    if [ $? -eq 0 ]; then
+        print_success "Deployment completed successfully!"
+        print_status "Your app should be available at the URL shown above"
+    else
+        print_error "Deployment failed. Please check the Vercel logs."
+        exit 1
+    fi
+}
+
+# Setup environment variables
+setup_env_vars() {
+    print_status "Checking environment variables..."
+
+    if [ ! -f ".env" ]; then
+        print_warning ".env file not found. Creating from template..."
+        if [ -f "env.example" ]; then
+            cp env.example .env
+            print_success ".env file created from template"
+            print_warning "Please edit .env file with your production values before deploying!"
+            exit 1
+        else
+            print_error "env.example file not found. Please create environment configuration."
+            exit 1
+        fi
+    else
+        print_success ".env file exists"
+    fi
+}
+
+# Main deployment function
+main() {
+    local deploy_type="preview"
+
+    # Parse command line arguments
+    while [[ $# -gt 0 ]]; do
+        case $1 in
+            --prod|--production)
+                deploy_type="production"
+                shift
+                ;;
+            --help|-h)
+                echo "Usage: $0 [--prod|--production] [--help|-h]"
+                echo ""
+                echo "Options:"
+                echo "  --prod, --production    Deploy to production (default: preview)"
+                echo "  --help, -h             Show this help message"
+                exit 0
+                ;;
+            *)
+                print_error "Unknown option: $1"
+                echo "Use --help for usage information"
+                exit 1
+                ;;
+        esac
+    done
+
+    echo ""
+    print_status "Deployment type: $deploy_type"
+    echo ""
+
+    # Run deployment steps
+    check_dependencies
+    setup_env_vars
+    run_lint
+    run_tests
+    build_app
+    deploy_to_vercel "$deploy_type"
+
+    echo ""
+    print_success "🎉 Deployment completed successfully!"
+    print_status "Your Company Project Manager is now live!"
+}
+
+# Run main function with all arguments
+main "$@"
 
 ## What's Been Implemented
 

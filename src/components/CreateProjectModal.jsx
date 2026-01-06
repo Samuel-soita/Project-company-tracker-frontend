@@ -87,11 +87,11 @@ const CreateProjectModal = ({ onClose, onSuccess, project = null }) => {
 
         // Validate required fields
         if (!formData.class_id) {
-            setError('Please select a class');
+            setError('Please select a project type');
             return;
         }
         if (!formData.cohort_id) {
-            setError('Please select a cohort');
+            setError('Please select a team');
             return;
         }
 
@@ -212,10 +212,10 @@ const CreateProjectModal = ({ onClose, onSuccess, project = null }) => {
                         />
                     </div>
 
-                    {/* Class Dropdown */}
+                    {/* Project Type Dropdown */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Class
+                            Project Type
                         </label>
                         <select
                             name="class_id"
@@ -223,7 +223,7 @@ const CreateProjectModal = ({ onClose, onSuccess, project = null }) => {
                             onChange={handleChange}
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                         >
-                            <option value="">Select a class</option>
+                            <option value="">Select a project type</option>
                             {classes.map((cls) => (
                                 <option key={cls.id} value={cls.id}>
                                     {cls.name} {cls.track ? `- ${cls.track}` : ''}
@@ -232,10 +232,10 @@ const CreateProjectModal = ({ onClose, onSuccess, project = null }) => {
                         </select>
                     </div>
 
-                    {/* Cohort Dropdown */}
+                    {/* Team Dropdown */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Cohort
+                            Team
                         </label>
                         <select
                             name="cohort_id"
@@ -243,7 +243,7 @@ const CreateProjectModal = ({ onClose, onSuccess, project = null }) => {
                             onChange={handleChange}
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                         >
-                            <option value="">Select a cohort</option>
+                            <option value="">Select a team</option>
                             {cohorts.map((cohort) => (
                                 <option key={cohort.id} value={cohort.id}>
                                     {cohort.name}

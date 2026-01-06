@@ -9,7 +9,7 @@ import KanbanBoard from '../components/KanbanBoard';
 const ProjectDetails = () => {
     const { id } = useParams();
     const navigate = useNavigate();
-    const { user, isAdmin } = useAuth();
+    const { user, isManager } = useAuth();
     const [project, setProject] = useState(null);
     const [loading, setLoading] = useState(true);
 
@@ -77,7 +77,7 @@ const ProjectDetails = () => {
     }
 
     const isOwner = project.owner_id === user?.id;
-    const canEdit = isOwner || isAdmin();
+    const canEdit = isOwner || isManager();
 
     // Check if user is an accepted member
     const isAcceptedMember = project.members?.some(
@@ -85,7 +85,7 @@ const ProjectDetails = () => {
     );
 
     // Collaborators can drag tasks but cannot edit/delete
-    const canDrag = isOwner || isAdmin() || isAcceptedMember;
+    const canDrag = isOwner || isManager() || isAcceptedMember;
     const isReadOnly = !canEdit;
 
     return (
