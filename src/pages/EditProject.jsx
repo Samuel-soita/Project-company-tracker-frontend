@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { projectsAPI } from '../api/projects';
@@ -25,12 +25,7 @@ const EditProject = () => {
     const [memberEmail, setMemberEmail] = useState('');
     const [error, setError] = useState('');
 
-    useEffect(() => {
-        fetchProject();
-        fetchClassesAndCohorts();
-    }, [id]);
-
-    const fetchClassesAndCohorts = async () => {
+    const fetchClassesAndCohorts = useCallback(async () => {
         try {
             const [classesResponse, cohortsResponse] = await Promise.all([
                 classesAPI.getAll(),
@@ -41,9 +36,9 @@ const EditProject = () => {
         } catch (err) {
             console.error('Error fetching classes and cohorts:', err);
         }
-    };
+    }, []);
 
-    const fetchProject = async () => {
+    const fetchProject = useCallback(async () => {
         try {
             setLoading(true);
             const response = await projectsAPI.getById(id);
@@ -84,7 +79,12 @@ const EditProject = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [id, user?.id, navigate, isManager]);
+
+    useEffect(() => {
+        fetchProject();
+        fetchClassesAndCohorts();
+    }, [fetchProject, fetchClassesAndCohorts]);
 
     const handleAddMember = () => {
         if (!memberEmail.trim()) {

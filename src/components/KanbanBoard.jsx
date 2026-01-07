@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
     DndContext,
     DragOverlay,
@@ -150,18 +150,18 @@ const KanbanBoard = ({ projectId, isReadOnly = false, canDrag = true, projectMem
         Done: 'Done',
     };
 
-    useEffect(() => {
-        fetchTasks();
-    }, [projectId]);
-
-    const fetchTasks = async () => {
+    const fetchTasks = useCallback(async () => {
         try {
             const response = await tasksAPI.getByProject(projectId);
             setTasks(response.tasks || []);
         } catch (error) {
             console.error('Error fetching tasks:', error);
         }
-    };
+    }, [projectId]);
+
+    useEffect(() => {
+        fetchTasks();
+    }, [fetchTasks]);
 
     const getTasksByStatus = (status) => {
         return tasks.filter((task) => task.status === status);

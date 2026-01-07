@@ -35,6 +35,7 @@ const SignUp = () => {
         setLoading(true);
 
         try {
+            // eslint-disable-next-line no-unused-vars
             const { confirm_password, ...registrationData } = formData;
             await register(registrationData);
             navigate('/login', {

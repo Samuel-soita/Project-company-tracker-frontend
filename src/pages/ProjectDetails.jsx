@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { projectsAPI } from '../api/projects';
@@ -13,11 +13,7 @@ const ProjectDetails = () => {
     const [project, setProject] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        fetchProject();
-    }, [id]);
-
-    const fetchProject = async () => {
+    const fetchProject = useCallback(async () => {
         try {
             setLoading(true);
             const response = await projectsAPI.getById(id);
@@ -28,7 +24,11 @@ const ProjectDetails = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [id, navigate]);
+
+    useEffect(() => {
+        fetchProject();
+    }, [fetchProject]);
 
     const handleDelete = async () => {
         if (!window.confirm('Are you sure you want to delete this project?')) return;

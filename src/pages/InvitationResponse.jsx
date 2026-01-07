@@ -23,7 +23,7 @@ const InvitationResponse = () => {
 
             try {
                 setLoading(true);
-                const response = await membersAPI.respond(projectId, action);
+                await membersAPI.respond(projectId, action);
 
                 if (action === 'accept') {
                     setMessage(`You have successfully joined the project!`);

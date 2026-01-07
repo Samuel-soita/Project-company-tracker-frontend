@@ -66,7 +66,7 @@ class APIClient {
                 let data;
                 try {
                     data = await response.json();
-                } catch (error) {
+                } catch {
                     // Handle non-JSON responses (like network errors)
                     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { projectsAPI } from '../api/projects';
@@ -24,11 +24,7 @@ const AdminDashboard = () => {
     const [classFilter, setClassFilter] = useState('');
     const [cohortFilter, setCohortFilter] = useState('');
 
-    useEffect(() => {
-        fetchData();
-    }, [activeTab]);
-
-    const fetchData = async () => {
+    const fetchData = useCallback(async () => {
         setLoading(true);
         try {
             if (activeTab === 'projects') {
@@ -46,7 +42,11 @@ const AdminDashboard = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [activeTab]);
+
+    useEffect(() => {
+        fetchData();
+    }, [fetchData]);
 
     const handleDeleteProject = async (id) => {
         if (!window.confirm('Are you sure you want to delete this project?')) return;

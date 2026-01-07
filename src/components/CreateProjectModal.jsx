@@ -36,7 +36,7 @@ const CreateProjectModal = ({ onClose, onSuccess, project = null }) => {
             }));
             setMembers(existingMembers);
         }
-    }, []);
+    }, [isEdit, project?.members]);
 
     const fetchClassesAndCohorts = async () => {
         try {
@@ -155,10 +155,11 @@ const CreateProjectModal = ({ onClose, onSuccess, project = null }) => {
 
                     {/* Project Name */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label htmlFor="project-name" className="block text-sm font-medium text-gray-700 mb-2">
                             Project Name <span className="text-red-500">*</span>
                         </label>
                         <input
+                            id="project-name"
                             type="text"
                             name="name"
                             value={formData.name}
@@ -171,10 +172,11 @@ const CreateProjectModal = ({ onClose, onSuccess, project = null }) => {
 
                     {/* Project Description */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label htmlFor="project-description" className="block text-sm font-medium text-gray-700 mb-2">
                             Project Description
                         </label>
                         <textarea
+                            id="project-description"
                             name="description"
                             value={formData.description}
                             onChange={handleChange}
@@ -199,10 +201,11 @@ const CreateProjectModal = ({ onClose, onSuccess, project = null }) => {
 
                     {/* GitHub Link */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label htmlFor="github-link" className="block text-sm font-medium text-gray-700 mb-2">
                             GitHub Link
                         </label>
                         <input
+                            id="github-link"
                             type="url"
                             name="github_link"
                             value={formData.github_link}
@@ -214,10 +217,11 @@ const CreateProjectModal = ({ onClose, onSuccess, project = null }) => {
 
                     {/* Project Type Dropdown */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label htmlFor="project-type" className="block text-sm font-medium text-gray-700 mb-2">
                             Project Type
                         </label>
                         <select
+                            id="project-type"
                             name="class_id"
                             value={formData.class_id}
                             onChange={handleChange}
@@ -234,10 +238,11 @@ const CreateProjectModal = ({ onClose, onSuccess, project = null }) => {
 
                     {/* Team Dropdown */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label htmlFor="team" className="block text-sm font-medium text-gray-700 mb-2">
                             Team
                         </label>
                         <select
+                            id="team"
                             name="cohort_id"
                             value={formData.cohort_id}
                             onChange={handleChange}

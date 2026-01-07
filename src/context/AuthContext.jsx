@@ -3,6 +3,7 @@ import { authAPI } from '../api/auth';
 
 const AuthContext = createContext(null);
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => {
     const context = useContext(AuthContext);
     if (!context) {
@@ -32,33 +33,25 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     const login = async (credentials) => {
-        try {
-            const data = await authAPI.login(credentials);
+        const data = await authAPI.login(credentials);
 
-            if (data.two_factor_enabled) {
-                // Store user_id temporarily for 2FA verification
-                // Credentials are not stored for security - user will need to re-enter if needed
-                localStorage.setItem('pending_2fa_user_id', data.user_id);
-                return { requires2FA: true, userId: data.user_id };
-            }
-
-            // Token is now handled via httpOnly cookie by backend
-            localStorage.setItem('user', JSON.stringify(data.user));
-            setUser(data.user);
-
-            return { success: true };
-        } catch (error) {
-            throw error;
+        if (data.two_factor_enabled) {
+            // Store user_id temporarily for 2FA verification
+            // Credentials are not stored for security - user will need to re-enter if needed
+            localStorage.setItem('pending_2fa_user_id', data.user_id);
+            return { requires2FA: true, userId: data.user_id };
         }
+
+        // Token is now handled via httpOnly cookie by backend
+        localStorage.setItem('user', JSON.stringify(data.user));
+        setUser(data.user);
+
+        return { success: true };
     };
 
     const register = async (userData) => {
-        try {
-            const data = await authAPI.register(userData);
-            return { success: true, message: data.message };
-        } catch (error) {
-            throw error;
-        }
+        const data = await authAPI.register(userData);
+        return { success: true, message: data.message };
     };
 
     const logout = async () => {
