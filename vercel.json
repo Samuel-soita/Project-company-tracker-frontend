@@ -11,6 +11,21 @@
     ],
     "routes": [
     {
+        "src": "/manifest.json",
+        "dest": "/manifest.json",
+        "headers": {
+            "Content-Type": "application/manifest+json"
+        }
+    },
+    {
+        "src": "/sw.js",
+        "dest": "/sw.js",
+        "headers": {
+            "Content-Type": "application/javascript",
+            "Cache-Control": "no-cache"
+        }
+    },
+    {
         "src": "/assets/(.*)",
         "dest": "/assets/$1"
     },
