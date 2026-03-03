@@ -204,6 +204,8 @@ describe('KanbanBoard', () => {
                     description: '',
                     project_id: 1,
                     status: 'To Do',
+                    due_date: null,
+                    priority: 'Medium',
                 });
             });
         });

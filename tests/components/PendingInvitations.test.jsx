@@ -31,7 +31,7 @@ describe('PendingInvitations', () => {
 
     describe('Loading State', () => {
         test('displays loading message when fetching invitations', () => {
-            membersAPI.getPending.mockImplementation(() => new Promise(() => {}));
+            membersAPI.getPending.mockImplementation(() => new Promise(() => { }));
 
             render(<PendingInvitations />);
 
@@ -47,6 +47,10 @@ describe('PendingInvitations', () => {
 
             await waitFor(() => {
                 expect(membersAPI.getPending).toHaveBeenCalled();
+            });
+
+            await waitFor(() => {
+                expect(screen.queryByText('Loading invitations...')).not.toBeInTheDocument();
             });
 
             expect(container.firstChild).toBeNull();
@@ -184,7 +188,7 @@ describe('PendingInvitations', () => {
 
     describe('Error Handling', () => {
         test('displays error message when fetching invitations fails', async () => {
-            const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
+            const consoleError = jest.spyOn(console, 'error').mockImplementation(() => { });
             membersAPI.getPending.mockRejectedValue(new Error('Network error'));
 
             render(<PendingInvitations />);
@@ -197,7 +201,7 @@ describe('PendingInvitations', () => {
         });
 
         test('displays error when responding to invitation fails', async () => {
-            const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
+            const consoleError = jest.spyOn(console, 'error').mockImplementation(() => { });
             membersAPI.getPending.mockResolvedValue({ data: mockInvitations });
             membersAPI.respond.mockRejectedValue({
                 response: { data: { message: 'Failed to process invitation' } }
@@ -220,7 +224,7 @@ describe('PendingInvitations', () => {
         });
 
         test('displays generic error message when API error has no message', async () => {
-            const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
+            const consoleError = jest.spyOn(console, 'error').mockImplementation(() => { });
             membersAPI.getPending.mockResolvedValue({ data: mockInvitations });
             membersAPI.respond.mockRejectedValue(new Error('Unknown error'));
 

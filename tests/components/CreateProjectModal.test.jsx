@@ -51,12 +51,12 @@ describe('CreateProjectModal', () => {
             render(<CreateProjectModal onClose={mockOnClose} onSuccess={mockOnSuccess} />);
 
             await waitFor(() => {
-                expect(screen.getByText('Create new Project')).toBeInTheDocument();
+                expect(screen.getByText(/Initialize/i)).toBeInTheDocument();
             });
 
             expect(screen.getByLabelText(/Project Name/i)).toBeInTheDocument();
             expect(screen.getByLabelText(/Project Description/i)).toBeInTheDocument();
-            expect(screen.getByLabelText(/GitHub Link/i)).toBeInTheDocument();
+            expect(screen.getByLabelText(/Repository Link/i)).toBeInTheDocument();
         });
 
         test('renders edit mode correctly', async () => {
@@ -78,7 +78,7 @@ describe('CreateProjectModal', () => {
             );
 
             await waitFor(() => {
-                expect(screen.getByText('Edit Project')).toBeInTheDocument();
+                expect(screen.getByText(/Modify/i)).toBeInTheDocument();
             });
 
             expect(screen.getByDisplayValue('Existing Project')).toBeInTheDocument();
@@ -89,7 +89,7 @@ describe('CreateProjectModal', () => {
             render(<CreateProjectModal onClose={mockOnClose} onSuccess={mockOnSuccess} />);
 
             await waitFor(() => {
-                expect(screen.getByDisplayValue('Test User')).toBeInTheDocument();
+                expect(screen.getByText('Test User')).toBeInTheDocument();
             });
         });
     });
@@ -108,8 +108,8 @@ describe('CreateProjectModal', () => {
             render(<CreateProjectModal onClose={mockOnClose} onSuccess={mockOnSuccess} />);
 
             await waitFor(() => {
-                expect(screen.getByText('Class 1 - Track A')).toBeInTheDocument();
-                expect(screen.getByText('Class 2 - Track B')).toBeInTheDocument();
+                expect(screen.getByText('Class 1')).toBeInTheDocument();
+                expect(screen.getByText('Class 2')).toBeInTheDocument();
             });
         });
 
@@ -141,13 +141,13 @@ describe('CreateProjectModal', () => {
             render(<CreateProjectModal onClose={mockOnClose} onSuccess={mockOnSuccess} />);
 
             await waitFor(() => {
-                expect(screen.getByPlaceholderText('Enter member email address')).toBeInTheDocument();
+                expect(screen.getByPlaceholderText('operator@matrix.net')).toBeInTheDocument();
             });
 
-            const emailInput = screen.getByPlaceholderText('Enter member email address');
+            const emailInput = screen.getByPlaceholderText('operator@matrix.net');
             await user.type(emailInput, 'newmember@example.com');
 
-            const addButton = screen.getByRole('button', { name: '' });
+            const addButton = screen.getByRole('button', { name: 'Plus' });
             fireEvent.click(addButton);
 
             await waitFor(() => {
@@ -161,13 +161,13 @@ describe('CreateProjectModal', () => {
             render(<CreateProjectModal onClose={mockOnClose} onSuccess={mockOnSuccess} />);
 
             await waitFor(() => {
-                expect(screen.getByPlaceholderText('Enter member email address')).toBeInTheDocument();
+                expect(screen.getByPlaceholderText('operator@matrix.net')).toBeInTheDocument();
             });
 
-            const emailInput = screen.getByPlaceholderText('Enter member email address');
+            const emailInput = screen.getByPlaceholderText('operator@matrix.net');
             await user.type(emailInput, 'invalid-email');
 
-            const addButton = screen.getByRole('button', { name: '' });
+            const addButton = screen.getByRole('button', { name: 'Plus' });
             fireEvent.click(addButton);
 
             await waitFor(() => {
@@ -181,13 +181,13 @@ describe('CreateProjectModal', () => {
             render(<CreateProjectModal onClose={mockOnClose} onSuccess={mockOnSuccess} />);
 
             await waitFor(() => {
-                expect(screen.getByPlaceholderText('Enter member email address')).toBeInTheDocument();
+                expect(screen.getByPlaceholderText('operator@matrix.net')).toBeInTheDocument();
             });
 
-            const emailInput = screen.getByPlaceholderText('Enter member email address');
+            const emailInput = screen.getByPlaceholderText('operator@matrix.net');
             await user.type(emailInput, 'member@example.com');
 
-            const addButton = screen.getByRole('button', { name: '' });
+            const addButton = screen.getByRole('button', { name: 'Plus' });
             fireEvent.click(addButton);
 
             await waitFor(() => {
@@ -209,10 +209,10 @@ describe('CreateProjectModal', () => {
             render(<CreateProjectModal onClose={mockOnClose} onSuccess={mockOnSuccess} />);
 
             await waitFor(() => {
-                expect(screen.getByPlaceholderText('Enter member email address')).toBeInTheDocument();
+                expect(screen.getByPlaceholderText('operator@matrix.net')).toBeInTheDocument();
             });
 
-            const emailInput = screen.getByPlaceholderText('Enter member email address');
+            const emailInput = screen.getByPlaceholderText('operator@matrix.net');
             await user.type(emailInput, 'enter@example.com{Enter}');
 
             await waitFor(() => {
@@ -234,10 +234,10 @@ describe('CreateProjectModal', () => {
             });
 
             await user.type(screen.getByLabelText(/Project Name/i), 'New Project');
-            await user.selectOptions(screen.getByLabelText(/Class/i), '1');
-            await user.selectOptions(screen.getByLabelText(/Cohort/i), '1');
+            await user.selectOptions(screen.getByLabelText(/Project Category/i), '1');
+            await user.selectOptions(screen.getByLabelText(/Assigned Team/i), '1');
 
-            const submitButton = screen.getByRole('button', { name: /Create Project/i });
+            const submitButton = screen.getByRole('button', { name: /Establish Project/i });
             fireEvent.click(submitButton);
 
             await waitFor(() => {
@@ -266,19 +266,19 @@ describe('CreateProjectModal', () => {
             });
 
             await user.type(screen.getByLabelText(/Project Name/i), 'New Project');
-            await user.selectOptions(screen.getByLabelText(/Class/i), '1');
-            await user.selectOptions(screen.getByLabelText(/Cohort/i), '1');
+            await user.selectOptions(screen.getByLabelText(/Project Category/i), '1');
+            await user.selectOptions(screen.getByLabelText(/Assigned Team/i), '1');
 
-            const emailInput = screen.getByPlaceholderText('Enter member email address');
+            const emailInput = screen.getByPlaceholderText('operator@matrix.net');
             await user.type(emailInput, 'member1@example.com');
-            const addButton = screen.getByRole('button', { name: '' });
+            const addButton = screen.getByRole('button', { name: 'Plus' });
             fireEvent.click(addButton);
 
             await waitFor(() => {
                 expect(screen.getByText('member1@example.com')).toBeInTheDocument();
             });
 
-            const submitButton = screen.getByRole('button', { name: /Create Project/i });
+            const submitButton = screen.getByRole('button', { name: /Establish Project/i });
             fireEvent.click(submitButton);
 
             await waitFor(() => {
@@ -299,11 +299,11 @@ describe('CreateProjectModal', () => {
 
             await user.type(screen.getByLabelText(/Project Name/i), 'New Project');
 
-            const submitButton = screen.getByRole('button', { name: /Create Project/i });
+            const submitButton = screen.getByRole('button', { name: /Establish Project/i });
             fireEvent.click(submitButton);
 
             await waitFor(() => {
-                expect(screen.getByText('Please select a class')).toBeInTheDocument();
+                expect(screen.getByText('Please select a project type')).toBeInTheDocument();
             });
 
             expect(projectsAPI.create).not.toHaveBeenCalled();
@@ -319,13 +319,13 @@ describe('CreateProjectModal', () => {
             });
 
             await user.type(screen.getByLabelText(/Project Name/i), 'New Project');
-            await user.selectOptions(screen.getByLabelText(/Class/i), '1');
+            await user.selectOptions(screen.getByLabelText(/Project Category/i), '1');
 
-            const submitButton = screen.getByRole('button', { name: /Create Project/i });
+            const submitButton = screen.getByRole('button', { name: /Establish Project/i });
             fireEvent.click(submitButton);
 
             await waitFor(() => {
-                expect(screen.getByText('Please select a cohort')).toBeInTheDocument();
+                expect(screen.getByText('Please select a team')).toBeInTheDocument();
             });
 
             expect(projectsAPI.create).not.toHaveBeenCalled();
@@ -361,7 +361,7 @@ describe('CreateProjectModal', () => {
             await user.clear(nameInput);
             await user.type(nameInput, 'Updated Project');
 
-            const submitButton = screen.getByRole('button', { name: /Update Project/i });
+            const submitButton = screen.getByRole('button', { name: /Save Internal Changes/i });
             fireEvent.click(submitButton);
 
             await waitFor(() => {
@@ -390,14 +390,14 @@ describe('CreateProjectModal', () => {
             });
 
             await user.type(screen.getByLabelText(/Project Name/i), 'New Project');
-            await user.selectOptions(screen.getByLabelText(/Class/i), '1');
-            await user.selectOptions(screen.getByLabelText(/Cohort/i), '1');
+            await user.selectOptions(screen.getByLabelText(/Project Category/i), '1');
+            await user.selectOptions(screen.getByLabelText(/Assigned Team/i), '1');
 
-            const submitButton = screen.getByRole('button', { name: /Create Project/i });
+            const submitButton = screen.getByRole('button', { name: /Establish Project/i });
             fireEvent.click(submitButton);
 
             await waitFor(() => {
-                expect(screen.getByText('Failed to save project')).toBeInTheDocument();
+                expect(screen.getByText('Server error')).toBeInTheDocument();
             });
         });
 
@@ -421,7 +421,7 @@ describe('CreateProjectModal', () => {
             render(<CreateProjectModal onClose={mockOnClose} onSuccess={mockOnSuccess} />);
 
             await waitFor(() => {
-                expect(screen.getByText('Create new Project')).toBeInTheDocument();
+                expect(screen.getByText(/Initialize/i)).toBeInTheDocument();
             });
 
             const closeButton = screen.getAllByRole('button')[0];
@@ -434,7 +434,7 @@ describe('CreateProjectModal', () => {
             render(<CreateProjectModal onClose={mockOnClose} onSuccess={mockOnSuccess} />);
 
             await waitFor(() => {
-                expect(screen.getByText('Create new Project')).toBeInTheDocument();
+                expect(screen.getByText(/Initialize/i)).toBeInTheDocument();
             });
 
             const cancelButton = screen.getByRole('button', { name: /Cancel/i });
@@ -454,14 +454,14 @@ describe('CreateProjectModal', () => {
             });
 
             await user.type(screen.getByLabelText(/Project Name/i), 'New Project');
-            await user.selectOptions(screen.getByLabelText(/Class/i), '1');
-            await user.selectOptions(screen.getByLabelText(/Cohort/i), '1');
+            await user.selectOptions(screen.getByLabelText(/Project Category/i), '1');
+            await user.selectOptions(screen.getByLabelText(/Assigned Team/i), '1');
 
-            const submitButton = screen.getByRole('button', { name: /Create Project/i });
+            const submitButton = screen.getByRole('button', { name: /Establish Project/i });
             fireEvent.click(submitButton);
 
             await waitFor(() => {
-                expect(screen.getByText('Saving...')).toBeInTheDocument();
+                expect(screen.getByText(/Synchronizing/i)).toBeInTheDocument();
             });
         });
     });

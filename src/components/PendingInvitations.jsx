@@ -59,8 +59,8 @@ const PendingInvitations = () => {
         );
     }
 
-    if (invitations.length === 0) {
-        return null; // Don't show the section if there are no invitations
+    if (invitations.length === 0 && !error) {
+        return null; // Don't show the section if there are no invitations AND no error
     }
 
     return (
