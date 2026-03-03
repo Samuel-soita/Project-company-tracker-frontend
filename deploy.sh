@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# Company Project Manager - Deployment Script
+# Smirror Project Tracker - Deployment Script
 # This script builds and deploys the application to Vercel
 
 set -e  # Exit on any error
 
-echo "🚀 Company Project Manager - Deployment Script"
+echo "🚀 Smirror Project Tracker - Deployment Script"
 echo "=============================================="
 
 # Colors for output
@@ -185,7 +185,7 @@ main() {
 
     echo ""
     print_success "🎉 Deployment completed successfully!"
-    print_status "Your Company Project Manager is now live!"
+    print_status "Your Smirror Project Tracker is now live!"
 }
 
 # Run main function with all arguments

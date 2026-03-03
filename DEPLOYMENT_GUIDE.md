@@ -1,8 +1,8 @@
-# 🚀 Company Project Manager - Deployment Guide
+# 🚀 Smirror Project Tracker - Deployment Guide
 
 ## Overview
 
-Your **Company Project Manager** is now production-ready and can be deployed to Vercel with a single command. This guide walks you through the deployment process.
+Your **Smirror Project Tracker** is now production-ready and can be deployed to Vercel with a single command. This guide walks you through the deployment process.
 
 ## 📋 Prerequisites
 
@@ -56,7 +56,7 @@ Edit `.env` file:
 VITE_API_URL=https://your-backend-api.com
 
 # Update app name (optional)
-VITE_APP_NAME="Your Company Project Manager"
+VITE_APP_NAME="Smirror Project Tracker"
 
 # Keep other defaults
 VITE_NODE_ENV=production
@@ -72,7 +72,7 @@ For production, set environment variables in Vercel dashboard:
 4. Add:
    ```
    VITE_API_URL=https://your-production-backend.com
-   VITE_APP_NAME=Your Company Project Manager
+   VITE_APP_NAME="Smirror Project Tracker"
    ```
 
 ## 🏗️ Deployment Steps
@@ -319,7 +319,7 @@ vercel env add          # Add environment variable
 
 ## 🎉 Success!
 
-Once deployed, your **Company Project Manager** will be available at:
+Once deployed, your **Smirror Project Tracker** will be available at:
 - **Preview**: `https://[project-name].vercel.app`
 - **Production**: `https://[project-name].vercel.app` (or custom domain)
 

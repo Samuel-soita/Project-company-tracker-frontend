@@ -1,4 +1,4 @@
-# Company Project Manager - Frontend
+# Smirror Project Tracker - Frontend
 
 A modern React-based project management application for companies to manage team projects, departments, and project categories.
 

@@ -4,9 +4,11 @@ import { useAuth } from '../context/AuthContext';
 import { projectsAPI } from '../api/projects';
 import { cohortsAPI } from '../api/cohorts';
 import { classesAPI } from '../api/classes';
+import { dashboardApi } from '../api/dashboard';
 import { authAPI } from '../api/auth';
-import { Plus, Edit, Trash2, Eye, Shield, Search } from 'lucide-react';
+import { Plus, Edit, Trash2, Eye, Shield, Search, TrendingUp } from 'lucide-react';
 import CreateProjectModal from '../components/CreateProjectModal';
+import NotificationDropdown from '../components/NotificationDropdown';
 
 const AdminDashboard = () => {
     const { user, logout } = useAuth();
@@ -24,6 +26,21 @@ const AdminDashboard = () => {
     const [classFilter, setClassFilter] = useState('');
     const [cohortFilter, setCohortFilter] = useState('');
 
+    // Analytics state
+    const [analytics, setAnalytics] = useState({
+        summary: null,
+        status: [],
+        teams: [],
+        tasks: []
+    });
+
+    const tabs = [
+        { id: 'projects', label: 'Projects', icon: <Eye size={16} /> },
+        { id: 'teams', label: 'Teams', icon: <Plus size={16} /> },
+        { id: 'project-types', label: 'Project Types', icon: <Shield size={16} /> },
+        { id: 'analytics', label: 'Analytics', icon: <TrendingUp size={16} /> },
+    ];
+
     const fetchData = useCallback(async () => {
         setLoading(true);
         try {
@@ -36,6 +53,19 @@ const AdminDashboard = () => {
             } else if (activeTab === 'project-types') {
                 const response = await classesAPI.getAll();
                 setClasses(Array.isArray(response) ? response : []);
+            } else if (activeTab === 'analytics') {
+                const [summaryObj, statusArr, teamsArr, tasksArr] = await Promise.all([
+                    dashboardApi.getManagerSummary(),
+                    dashboardApi.getProjectsByStatus(),
+                    dashboardApi.getProjectsByTeam(),
+                    dashboardApi.getTaskProductivity()
+                ]);
+                setAnalytics({
+                    summary: summaryObj,
+                    status: statusArr.data || [],
+                    teams: teamsArr.data || [],
+                    tasks: tasksArr.data || []
+                });
             }
         } catch (error) {
             console.error('Error fetching data:', error);
@@ -112,111 +142,111 @@ const AdminDashboard = () => {
     const filteredProjects = filterProjects();
 
     const ProjectsTab = () => (
-        <div>
-            <div className="flex justify-between items-center mb-6">
-                <h2 className="text-xl font-bold">
-                    Total Projects
-                    <span className="ml-3 text-2xl">{filteredProjects.length}</span>
-                </h2>
+        <div className="space-y-6">
+            <div className="flex-between">
+                <div>
+                    <h2 className="text-3xl font-black neon-text-cyan flex items-center gap-4 tracking-tighter uppercase italic">
+                        Project <span className="text-white">Overview</span>
+                        <span className="text-4xl text-white bg-holo-cyan/10 px-6 py-2 rounded-2xl border border-holo-cyan/30 shadow-neon-cyan not-italic">
+                            {filteredProjects.length}
+                        </span>
+                    </h2>
+                </div>
                 <button
                     onClick={() => setShowProjectModal(true)}
-                    className="flex items-center gap-2 btn-primary"
+                    className="btn-holo"
                 >
-                    <Plus size={20} />
-                    New Project
+                    <Plus size={22} />
+                    Initialize Project
                 </button>
             </div>
 
             {/* Search Filters */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <Search size={18} className="text-gray-400" />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="relative group">
+                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <Search size={18} className="text-slate-500 group-focus-within:text-holo-cyan transition-colors" />
                     </div>
                     <input
                         type="text"
                         placeholder="Filter by class name..."
                         value={classFilter}
                         onChange={(e) => setClassFilter(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent shadow-sm text-gray-900 placeholder-gray-500"
+                        className="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:neon-border-cyan transition-all placeholder-slate-600 text-slate-200"
                     />
                 </div>
-                <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <Search size={18} className="text-gray-400" />
+                <div className="relative group">
+                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <Search size={18} className="text-slate-500 group-focus-within:text-holo-magenta transition-colors" />
                     </div>
                     <input
                         type="text"
                         placeholder="Filter by cohort name..."
                         value={cohortFilter}
                         onChange={(e) => setCohortFilter(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent shadow-sm text-gray-900 placeholder-gray-500"
+                        className="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:border-holo-magenta/50 focus:shadow-[0_0_15px_rgba(255,0,255,0.2)] transition-all placeholder-slate-600 text-slate-200"
                     />
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="bento-grid">
                 {filteredProjects.map((project) => (
-                    <div key={project.id} className="bg-white rounded-lg shadow-sm p-4 border relative">
-                        {/* Class Name - Top Right */}
-                        {project.class && (
-                            <div className="absolute top-3 right-3">
-                                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                    <div key={project.id} className="glass-card p-8 flex flex-col h-full hover:neon-border-cyan group border-t-2 border-t-transparent hover:border-t-holo-cyan transition-all duration-500">
+                        <div className="flex justify-between items-start mb-6">
+                            <h3 className="text-xl font-bold text-white group-hover:neon-text-cyan transition-colors line-clamp-1">{project.name}</h3>
+                            {project.class && (
+                                <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-holo-cyan/10 text-holo-cyan border border-holo-cyan/30 shadow-neon-cyan">
                                     {project.class.name}
                                 </span>
-                            </div>
-                        )}
+                            )}
+                        </div>
 
-                        <h3 className="font-semibold mb-2 pr-20">{project.name}</h3>
-                        <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-                            {project.description}
+                        <p className="text-slate-400 text-sm mb-6 line-clamp-3 leading-relaxed">
+                            {project.description || 'No system briefing available for this project node.'}
                         </p>
 
-                        {/* Members */}
-                        {project.members && project.members.length > 0 && (
-                            <div className="mb-3">
-                                <p className="text-xs text-gray-500 mb-1">Members:</p>
-                                <div className="flex flex-wrap gap-1">
-                                    {project.members.slice(0, 3).map((member, index) => (
-                                        <span
-                                            key={index}
-                                            className="inline-flex items-center px-2 py-0.5 rounded text-xs bg-gray-100 text-gray-700"
-                                        >
-                                            {member.name}
-                                        </span>
+                        <div className="mt-auto space-y-6">
+                            {project.members && project.members.length > 0 && (
+                                <div className="flex -space-x-3">
+                                    {project.members.slice(0, 4).map((member, index) => (
+                                        <div key={index} className="w-10 h-10 rounded-full bg-slate-800 border-2 border-deep-900 flex-center text-xs font-bold text-holo-cyan shadow-lg" title={member.name}>
+                                            {member.name.charAt(0)}
+                                        </div>
                                     ))}
-                                    {project.members.length > 3 && (
-                                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs bg-gray-100 text-gray-700">
-                                            +{project.members.length - 3} more
-                                        </span>
+                                    {project.members.length > 4 && (
+                                        <div className="w-10 h-10 rounded-full bg-white/5 border-2 border-deep-900 flex-center text-[10px] font-bold text-slate-400 backdrop-blur-sm">
+                                            +{project.members.length - 4}
+                                        </div>
                                     )}
                                 </div>
-                            </div>
-                        )}
+                            )}
 
-                        <div className="flex gap-2">
-                            <button
-                                onClick={() => navigate(`/projects/${project.id}`)}
-                                className="flex items-center gap-1 px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded text-sm"
-                            >
-                                <Eye size={14} />
-                                View
-                            </button>
-                            <button
-                                onClick={() => {
-                                    setEditingItem(project);
-                                    setShowProjectModal(true);
-                                }}
-                                className="flex items-center gap-1 px-3 py-1 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded text-sm"
-                            >
-                                <Edit size={14} />
-                            </button>
-                            <button
-                                onClick={() => handleDeleteProject(project.id)}
-                                className="flex items-center gap-1 px-3 py-1 bg-red-100 hover:bg-red-200 text-red-700 rounded text-sm"
-                            >
-                                <Trash2 size={14} />
-                            </button>
+                            <div className="flex gap-3">
+                                <button
+                                    onClick={() => navigate(`/projects/${project.id}`)}
+                                    className="flex-1 flex-center gap-2 px-4 py-2.5 bg-white/5 hover:bg-white/10 text-white rounded-xl text-xs font-bold uppercase tracking-widest transition-all border border-white/5 hover:border-white/20"
+                                >
+                                    <Eye size={16} className="text-holo-cyan" />
+                                    Sync
+                                </button>
+                                <div className="flex gap-2">
+                                    <button
+                                        onClick={() => {
+                                            setEditingItem(project);
+                                            setShowProjectModal(true);
+                                        }}
+                                        className="p-2.5 bg-white/5 hover:bg-blue-500/20 text-blue-400 hover:text-blue-300 rounded-xl transition-all border border-white/5 hover:border-blue-500/30"
+                                    >
+                                        <Edit size={16} />
+                                    </button>
+                                    <button
+                                        onClick={() => handleDeleteProject(project.id)}
+                                        className="p-2.5 bg-white/5 hover:bg-red-500/20 text-red-500 hover:text-red-400 rounded-xl transition-all border border-white/5 hover:border-red-500/30"
+                                    >
+                                        <Trash2 size={16} />
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 ))}
@@ -225,55 +255,63 @@ const AdminDashboard = () => {
     );
 
     const TeamsTab = () => (
-        <div>
-            <div className="flex justify-between items-center mb-6">
-                <h2 className="text-xl font-bold">
-                    Total Teams
-                    <span className="ml-3 text-2xl">{cohorts.length}</span>
-                </h2>
+        <div className="space-y-6">
+            <div className="flex-between">
+                <div>
+                    <h2 className="text-3xl font-black neon-text-magenta flex items-center gap-4 tracking-tighter uppercase italic">
+                        Team <span className="text-white">Sectors</span>
+                        <span className="text-4xl text-white bg-holo-magenta/10 px-6 py-2 rounded-2xl border border-holo-magenta/30 shadow-neon-magenta not-italic">
+                            {cohorts.length}
+                        </span>
+                    </h2>
+                </div>
                 <button
                     onClick={() => setShowCohortModal(true)}
-                    className="flex items-center gap-2 btn-primary"
+                    className="btn-holo btn-holo-magenta"
                 >
-                    <Plus size={20} />
-                    New Cohort
+                    <Plus size={22} />
+                    Create New Team
                 </button>
             </div>
 
-            <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {cohorts.map((cohort) => (
-                    <div key={cohort.id} className="bg-white rounded-lg shadow-sm p-4 border">
+                    <div key={cohort.id} className="glass-card p-8 hover:neon-border-magenta group border-l-4 border-l-transparent hover:border-l-holo-magenta transition-all duration-500">
                         <div className="flex justify-between items-start">
                             <div className="flex-1">
-                                <h3 className="font-semibold mb-2">{cohort.name}</h3>
-                                <div className="flex gap-4 text-sm text-gray-600">
+                                <h3 className="text-2xl font-black text-white mb-6 group-hover:neon-text-magenta transition-colors tracking-tight uppercase">
+                                    {cohort.name}
+                                </h3>
+                                <div className="space-y-4">
                                     {cohort.start_date && (
-                                        <p>
-                                            <span className="font-medium">Start:</span> {new Date(cohort.start_date).toLocaleDateString()}
-                                        </p>
+                                        <div className="flex items-center gap-4">
+                                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 w-24">Deployment</span>
+                                            <span className="text-sm font-bold text-slate-200 bg-white/5 px-3 py-1 rounded-lg border border-white/5">{new Date(cohort.start_date).toLocaleDateString()}</span>
+                                        </div>
                                     )}
                                     {cohort.end_date && (
-                                        <p>
-                                            <span className="font-medium">End:</span> {new Date(cohort.end_date).toLocaleDateString()}
-                                        </p>
+                                        <div className="flex items-center gap-4">
+                                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 w-24">Decommission</span>
+                                            <span className="text-sm font-bold text-slate-200 bg-white/5 px-3 py-1 rounded-lg border border-white/5">{new Date(cohort.end_date).toLocaleDateString()}</span>
+                                        </div>
                                     )}
                                 </div>
                             </div>
-                            <div className="flex gap-2">
+                            <div className="flex flex-col gap-3">
                                 <button
                                     onClick={() => {
                                         setEditingItem(cohort);
                                         setShowCohortModal(true);
                                     }}
-                                    className="p-2 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded"
+                                    className="p-3 bg-white/5 hover:bg-white/10 text-slate-400 hover:text-holo-magenta rounded-xl border border-white/5 hover:border-holo-magenta/30 transition-all shadow-lg"
                                 >
-                                    <Edit size={16} />
+                                    <Edit size={20} />
                                 </button>
                                 <button
                                     onClick={() => handleDeleteCohort(cohort.id)}
-                                    className="p-2 bg-red-100 hover:bg-red-200 text-red-700 rounded"
+                                    className="p-3 bg-white/5 hover:bg-red-500/10 text-slate-400 hover:text-red-500 rounded-xl border border-white/5 hover:border-red-500/30 transition-all shadow-lg"
                                 >
-                                    <Trash2 size={16} />
+                                    <Trash2 size={20} />
                                 </button>
                             </div>
                         </div>
@@ -284,133 +322,226 @@ const AdminDashboard = () => {
     );
 
     const ProjectTypesTab = () => (
-        <div>
-            <div className="flex justify-between items-center mb-6">
-                <h2 className="text-xl font-bold">
-                    Total Project Types
-                    <span className="ml-3 text-2xl">{classes.length}</span>
-                </h2>
+        <div className="space-y-6">
+            <div className="flex-between">
+                <div>
+                    <h2 className="text-3xl font-black neon-text-cyan flex items-center gap-4 tracking-tighter uppercase italic">
+                        Project <span className="text-white">Catalog</span>
+                        <span className="text-4xl text-white bg-holo-cyan/10 px-6 py-2 rounded-2xl border border-holo-cyan/30 shadow-neon-cyan not-italic">
+                            {classes.length}
+                        </span>
+                    </h2>
+                </div>
                 <button
                     onClick={() => setShowClassModal(true)}
-                    className="flex items-center gap-2 btn-primary"
+                    className="btn-holo"
                 >
-                    <Plus size={20} />
-                    New Class
+                    <Plus size={22} />
+                    New Project Type
                 </button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="bento-grid">
                 {classes.map((classItem) => (
-                    <div key={classItem.id} className="bg-white rounded-lg shadow-sm p-4 border">
-                        <div className="flex justify-between items-start mb-3">
-                            <div className="flex-1">
-                                <h3 className="font-semibold mb-1">{classItem.name}</h3>
-                                <p className="text-sm text-gray-600">{classItem.description}</p>
+                    <div key={classItem.id} className="glass-card p-6 hover:shadow-neon-cyan transition-all duration-300 border-l-4 border-l-holo-cyan">
+                        <div className="flex-between mb-4">
+                            <h3 className="text-xl font-bold text-white uppercase tracking-wider">{classItem.name}</h3>
+                            <div className="flex gap-2">
+                                <button
+                                    onClick={() => {
+                                        setEditingItem(classItem);
+                                        setShowClassModal(true);
+                                    }}
+                                    className="p-2 glass-card hover:border-holo-cyan transition-all text-slate-400 hover:text-holo-cyan"
+                                >
+                                    <Edit size={14} />
+                                </button>
+                                <button
+                                    onClick={() => handleDeleteClass(classItem.id)}
+                                    className="p-2 glass-card hover:border-red-500 transition-all text-slate-400 hover:text-red-500"
+                                >
+                                    <Trash2 size={14} />
+                                </button>
                             </div>
                         </div>
-                        <div className="flex gap-2 mt-3">
-                            <button
-                                onClick={() => {
-                                    setEditingItem(classItem);
-                                    setShowClassModal(true);
-                                }}
-                                className="flex items-center gap-1 px-3 py-1 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded text-sm"
-                            >
-                                <Edit size={14} />
-                            </button>
-                            <button
-                                onClick={() => handleDeleteClass(classItem.id)}
-                                className="flex items-center gap-1 px-3 py-1 bg-red-100 hover:bg-red-200 text-red-700 rounded text-sm"
-                            >
-                                <Trash2 size={14} />
-                            </button>
-                        </div>
+                        <p className="text-slate-400 leading-relaxed italic">
+                            {classItem.description || 'No system parameters defined.'}
+                        </p>
                     </div>
                 ))}
             </div>
         </div>
     );
 
-    return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 via-orange-50 to-red-50">
-            {/* Header */}
-            <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm shadow-sm border-b border-gray-200">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
-                    <div className="flex justify-between items-center">
-                        <div>
-                            <h1 className="text-2xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
-                                Manager Dashboard
-                            </h1>
-                            <p className="text-gray-600 mt-1 text-sm">Manage your platform</p>
-                        </div>
-                        <div className="flex gap-3">
-                            <button
-                                onClick={handleToggle2FA}
-                                className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-200 ${twoFactorEnabled
-                                        ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-md hover:shadow-lg hover:scale-105'
-                                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300'
-                                    }`}
-                            >
-                                <Shield size={18} />
-                                <span className="text-sm">{twoFactorEnabled ? '2FA Enabled' : 'Enable 2FA'}</span>
-                            </button>
-                            <button
-                                onClick={logout}
-                                className="px-4 py-2 bg-gradient-to-r from-red-500 to-pink-600 text-white rounded-lg hover:shadow-lg transition-all duration-200 hover:scale-105 font-medium text-sm"
-                            >
-                                Logout
-                            </button>
-                        </div>
+    const AnalyticsTab = () => (
+        <div className="space-y-10">
+            <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-full bg-holo-magenta/10 flex-center border border-holo-magenta/30 shadow-neon-magenta text-holo-magenta animate-pulse">
+                    <TrendingUp size={24} />
+                </div>
+                <h2 className="text-3xl font-black tracking-tighter text-white uppercase italic">
+                    Performance <span className="text-holo-magenta">Insight</span>
+                </h2>
+            </div>
+
+            {/* Quick Stats Bento */}
+            {analytics.summary && (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div className="glass-card p-10 flex flex-col items-center hover:shadow-neon-cyan group">
+                        <span className="text-slate-500 text-[10px] font-black uppercase tracking-[0.4em] mb-6 group-hover:text-holo-cyan transition-colors">Active Projects</span>
+                        <span className="text-7xl font-black text-white neon-text-cyan">{analytics.summary.totalProjects}</span>
+                        <div className="mt-6 w-12 h-1 bg-holo-cyan/20 rounded-full group-hover:w-24 group-hover:bg-holo-cyan/50 transition-all duration-500" />
+                    </div>
+                    <div className="glass-card p-10 flex flex-col items-center border-t-2 border-t-holo-magenta hover:shadow-neon-magenta group">
+                        <span className="text-slate-500 text-[10px] font-black uppercase tracking-[0.4em] mb-6 group-hover:text-holo-magenta transition-colors">Total Operations</span>
+                        <span className="text-7xl font-black text-white neon-text-magenta">{analytics.summary.totalTasks}</span>
+                        <div className="mt-6 w-12 h-1 bg-holo-magenta/20 rounded-full group-hover:w-24 group-hover:bg-holo-magenta/50 transition-all duration-500" />
+                    </div>
+                    <div className="glass-card p-10 flex flex-col items-center border-b-2 border-b-white/10 hover:neon-border-cyan group">
+                        <span className="text-slate-500 text-[10px] font-black uppercase tracking-[0.4em] mb-6 group-hover:text-white transition-colors">Current Sprints</span>
+                        <span className="text-7xl font-black text-white">{analytics.summary.activeSprints}</span>
+                        <div className="mt-6 w-12 h-1 bg-white/10 rounded-full group-hover:w-24 group-hover:bg-white/30 transition-all duration-500" />
                     </div>
                 </div>
-            </header>
+            )}
 
-            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-                {/* Tabs */}
-                <div className="flex gap-2 mb-10 bg-white rounded-xl p-2 shadow-md border border-gray-200">
-                    <button
-                        onClick={() => setActiveTab('projects')}
-                        className={`flex-1 px-6 py-3 font-semibold rounded-lg transition-all duration-200 ${activeTab === 'projects'
-                                ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-md'
-                                : 'text-gray-600 hover:bg-gray-100'
-                            }`}
-                    >
-                        Projects
-                    </button>
-                    <button
-                        onClick={() => setActiveTab('teams')}
-                        className={`flex-1 px-6 py-3 font-semibold rounded-lg transition-all duration-200 ${activeTab === 'cohorts'
-                                ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-md'
-                                : 'text-gray-600 hover:bg-gray-100'
-                            }`}
-                    >
-                        Teams
-                    </button>
-                    <button
-                        onClick={() => setActiveTab('project-types')}
-                        className={`flex-1 px-6 py-3 font-semibold rounded-lg transition-all duration-200 ${activeTab === 'classes'
-                                ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-md'
-                                : 'text-gray-600 hover:bg-gray-100'
-                            }`}
-                    >
-                        Project Types
-                    </button>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Projects by Status */}
+                <div className="glass-card p-8 lg:col-span-1 border-t-4 border-holo-cyan">
+                    <h3 className="text-sm font-black text-white uppercase tracking-[0.2em] mb-8 flex items-center gap-3">
+                        <div className="w-2 h-2 rounded-full bg-holo-cyan shadow-neon-cyan" />
+                        Status Distribution
+                    </h3>
+                    <div className="space-y-6">
+                        {analytics.status.length > 0 ? analytics.status.map((item, idx) => (
+                            <div key={idx} className="group">
+                                <div className="flex-between text-xs font-bold uppercase tracking-widest mb-2">
+                                    <span className="text-slate-400 group-hover:text-holo-cyan transition-colors">{item.name}</span>
+                                    <span className="text-white">{item.value}</span>
+                                </div>
+                                <div className="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+                                    <div
+                                        className={`h-full rounded-full transition-all duration-1000 ${item.name === 'Completed' ? 'bg-green-400 shadow-[0_0_10px_rgba(74,222,128,0.5)]' : 'bg-holo-cyan shadow-neon-cyan'
+                                            }`}
+                                        style={{ width: `${Math.min(100, item.value * 10)}%` }}
+                                    ></div>
+                                </div>
+                            </div>
+                        )) : <p className="text-xs text-slate-500 italic">No telemetry data...</p>}
+                    </div>
                 </div>
 
-                {/* Content */}
+                {/* Projects by Team */}
+                <div className="glass-card p-8 lg:col-span-1 border-t-4 border-holo-magenta">
+                    <h3 className="text-sm font-black text-white uppercase tracking-[0.2em] mb-8 flex items-center gap-3">
+                        <div className="w-2 h-2 rounded-full bg-holo-magenta shadow-neon-magenta" />
+                        Vector performance
+                    </h3>
+                    <div className="space-y-6">
+                        {analytics.teams.length > 0 ? analytics.teams.map((item, idx) => (
+                            <div key={idx} className="group">
+                                <div className="flex-between text-xs font-bold uppercase tracking-widest mb-2">
+                                    <span className="text-slate-400 group-hover:text-holo-magenta transition-colors">{item.name}</span>
+                                    <span className="text-white">{item.value}</span>
+                                </div>
+                                <div className="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+                                    <div
+                                        className="h-full rounded-full bg-holo-magenta shadow-neon-magenta transition-all duration-1000"
+                                        style={{ width: `${Math.min(100, (item.value / (analytics.summary?.totalProjects || 10)) * 100)}%` }}
+                                    ></div>
+                                </div>
+                            </div>
+                        )) : <p className="text-xs text-slate-500 italic">No telemetry data...</p>}
+                    </div>
+                </div>
+
+                {/* Task Productivity */}
+                <div className="glass-card p-8 lg:col-span-1 border-t-4 border-slate-500">
+                    <h3 className="text-sm font-black text-white uppercase tracking-[0.2em] mb-8 flex items-center gap-3">
+                        <div className="w-2 h-2 rounded-full bg-slate-400 shadow-lg" />
+                        Operation Velocity
+                    </h3>
+                    <div className="space-y-6">
+                        {analytics.tasks.length > 0 ? analytics.tasks.map((item, idx) => (
+                            <div key={idx} className="group">
+                                <div className="flex-between text-xs font-bold uppercase tracking-widest mb-2">
+                                    <span className="text-slate-400 group-hover:text-white transition-colors">{item.name}</span>
+                                    <span className="text-white">{item.value}</span>
+                                </div>
+                                <div className="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+                                    <div
+                                        className={`h-full rounded-full transition-all duration-1000 ${item.name === 'Done' ? 'bg-emerald-400' : item.name === 'In Progress' ? 'bg-blue-400' : 'bg-slate-500'
+                                            }`}
+                                        style={{ width: `${Math.min(100, item.value * 5)}%` }}
+                                    ></div>
+                                </div>
+                            </div>
+                        )) : <p className="text-xs text-slate-500 italic">No telemetry data...</p>}
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+
+    return (
+        <div className="p-8 max-w-[1600px] mx-auto min-h-screen">
+            {/* Action Bar & Tabs */}
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8 mb-16">
+                <div className="flex-center gap-4 p-2 bg-white/5 backdrop-blur-md rounded-2xl border border-white/5">
+                    {tabs.map((tab) => (
+                        <button
+                            key={tab.id}
+                            onClick={() => setActiveTab(tab.id)}
+                            className={`px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-300 flex items-center gap-3 ${activeTab === tab.id
+                                ? 'bg-holo-cyan text-deep-950 shadow-neon-cyan scale-105'
+                                : 'text-slate-400 hover:text-white hover:bg-white/5'
+                                }`}
+                        >
+                            {tab.icon && <span>{tab.icon}</span>}
+                            {tab.label}
+                        </button>
+                    ))}
+                </div>
+
+                <div className="flex items-center gap-4">
+                    <button
+                        onClick={handleToggle2FA}
+                        className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-[10px] uppercase tracking-widest transition-all duration-500 border ${twoFactorEnabled
+                            ? 'border-green-500/50 text-green-400 bg-green-500/10 shadow-[0_0_15px_rgba(34,197,94,0.2)]'
+                            : 'border-white/10 text-slate-400 bg-white/5 hover:border-holo-cyan/50 hover:text-holo-cyan'
+                            }`}
+                    >
+                        <Shield size={14} />
+                        {twoFactorEnabled ? '2FA ACTIVE' : 'SECURE OPS'}
+                    </button>
+
+                    <button
+                        onClick={logout}
+                        className="px-6 py-3 bg-white/5 hover:bg-red-500/10 text-slate-400 hover:text-red-500 rounded-xl border border-white/5 hover:border-red-500/30 font-black text-[10px] uppercase tracking-widest transition-all"
+                    >
+                        Logout
+                    </button>
+                </div>
+            </div>
+
+            {/* Content Container */}
+            <div className="animate-in fade-in slide-in-from-bottom-8 duration-1000">
                 {loading ? (
-                    <div className="text-center py-16">
-                        <div className="w-16 h-16 border-4 border-orange-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                        <p className="text-lg font-medium text-gray-700">Loading...</p>
+                    <div className="flex-center flex-col py-48 gap-8">
+                        <div className="loader-holo"></div>
+                        <p className="neon-text-cyan font-black tracking-[0.4em] text-xs animate-pulse uppercase">
+                            Synchronizing Core Systems...
+                        </p>
                     </div>
                 ) : (
-                    <>
+                    <div className="space-y-12">
                         {activeTab === 'projects' && <ProjectsTab />}
                         {activeTab === 'teams' && <TeamsTab />}
                         {activeTab === 'project-types' && <ProjectTypesTab />}
-                    </>
+                        {activeTab === 'analytics' && <AnalyticsTab />}
+                    </div>
                 )}
-            </main>
+            </div>
 
             {/* Modals */}
             {showProjectModal && (
@@ -489,69 +620,72 @@ const CohortModal = ({ cohort, onClose, onSuccess }) => {
     };
 
     return (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-xl shadow-2xl w-full max-w-md">
-                <div className="p-6">
-                    <h2 className="text-2xl font-bold mb-6">
-                        {cohort ? 'Edit Cohort' : 'Create New Cohort'}
+        <div className="fixed inset-0 bg-deep-950/80 backdrop-blur-xl flex items-center justify-center p-4 z-[100] animate-in fade-in duration-300">
+            <div className="glass-card w-full max-w-md border-holo-magenta/20 shadow-neon-magenta/20">
+                <div className="p-8">
+                    <h2 className="text-3xl font-black mb-8 neon-text-magenta uppercase tracking-tighter italic">
+                        {cohort ? 'Modify' : 'Initialize'} <span className="text-white">Team</span>
                     </h2>
 
-                    <form onSubmit={handleSubmit} className="space-y-4">
+                    <form onSubmit={handleSubmit} className="space-y-6">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Cohort Name
+                            <label className="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3">
+                                Designation
                             </label>
                             <input
                                 type="text"
                                 value={formData.name}
                                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                 required
-                                className="input-field"
+                                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:neon-border-magenta transition-all placeholder-slate-600"
+                                placeholder="e.g. ALPHA-V4"
                             />
                         </div>
 
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Start Date
-                            </label>
-                            <input
-                                type="date"
-                                value={formData.start_date}
-                                onChange={(e) =>
-                                    setFormData({ ...formData, start_date: e.target.value })
-                                }
-                                className="input-field"
-                            />
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3">
+                                    Start Date
+                                </label>
+                                <input
+                                    type="date"
+                                    value={formData.start_date}
+                                    onChange={(e) =>
+                                        setFormData({ ...formData, start_date: e.target.value })
+                                    }
+                                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:neon-border-magenta transition-all color-scheme-dark"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3">
+                                    End Date
+                                </label>
+                                <input
+                                    type="date"
+                                    value={formData.end_date}
+                                    onChange={(e) =>
+                                        setFormData({ ...formData, end_date: e.target.value })
+                                    }
+                                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:neon-border-magenta transition-all color-scheme-dark"
+                                />
+                            </div>
                         </div>
 
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                End Date
-                            </label>
-                            <input
-                                type="date"
-                                value={formData.end_date}
-                                onChange={(e) =>
-                                    setFormData({ ...formData, end_date: e.target.value })
-                                }
-                                className="input-field"
-                            />
-                        </div>
-
-                        <div className="flex gap-3">
+                        <div className="flex gap-4 pt-4">
                             <button
                                 type="button"
                                 onClick={onClose}
-                                className="flex-1 px-6 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
+                                className="flex-1 px-6 py-3 bg-white/5 text-slate-400 font-bold rounded-xl hover:bg-white/10 transition-all uppercase tracking-widest text-xs border border-white/5"
                             >
-                                Cancel
+                                Abort
                             </button>
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="flex-1 btn-primary disabled:opacity-50"
+                                className="flex-1 btn-holo btn-holo-magenta py-3 shadow-lg"
                             >
-                                {loading ? 'Saving...' : cohort ? 'Update' : 'Create'}
+                                {loading ? 'Processing...' : cohort ? 'Update' : 'Commit'}
                             </button>
                         </div>
                     </form>
@@ -588,31 +722,31 @@ const ClassModal = ({ classItem, onClose, onSuccess }) => {
     };
 
     return (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-xl shadow-2xl w-full max-w-md">
-                <div className="p-6">
-                    <h2 className="text-2xl font-bold mb-6">
-                        {classItem ? 'Edit Class' : 'Create New Class'}
+        <div className="fixed inset-0 bg-deep-950/80 backdrop-blur-xl flex items-center justify-center p-4 z-[100] animate-in fade-in duration-300">
+            <div className="glass-card w-full max-w-md border-holo-cyan/20 shadow-neon-cyan/20">
+                <div className="p-8">
+                    <h2 className="text-3xl font-black mb-8 neon-text-cyan uppercase tracking-tighter italic">
+                        {classItem ? 'Modify' : 'Define'} <span className="text-white">Category</span>
                     </h2>
 
-                    <form onSubmit={handleSubmit} className="space-y-4">
+                    <form onSubmit={handleSubmit} className="space-y-6">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Class Name
+                            <label className="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3">
+                                Designation
                             </label>
                             <input
                                 type="text"
                                 value={formData.name}
                                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                 required
-                                className="input-field"
-                                placeholder="e.g., SE-06, SE-07, DS-04"
+                                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:neon-border-cyan transition-all placeholder-slate-600 font-bold"
+                                placeholder="e.g. SE-06"
                             />
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Description
+                            <label className="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3">
+                                Category Description
                             </label>
                             <textarea
                                 value={formData.description}
@@ -620,24 +754,25 @@ const ClassModal = ({ classItem, onClose, onSuccess }) => {
                                     setFormData({ ...formData, description: e.target.value })
                                 }
                                 rows={4}
-                                className="input-field resize-none"
+                                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-4 text-white focus:outline-none focus:neon-border-cyan transition-all placeholder-slate-600 resize-none leading-relaxed"
+                                placeholder="Describe the project type parameters..."
                             />
                         </div>
 
-                        <div className="flex gap-3">
+                        <div className="flex gap-4 pt-4">
                             <button
                                 type="button"
                                 onClick={onClose}
-                                className="flex-1 px-6 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
+                                className="flex-1 px-6 py-3 bg-white/5 text-slate-400 font-bold rounded-xl hover:bg-white/10 transition-all uppercase tracking-widest text-xs border border-white/5"
                             >
-                                Cancel
+                                Abort
                             </button>
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="flex-1 btn-primary disabled:opacity-50"
+                                className="flex-1 btn-holo py-3 shadow-lg"
                             >
-                                {loading ? 'Saving...' : classItem ? 'Update' : 'Create'}
+                                {loading ? 'Processing...' : classItem ? 'Update' : 'Commit'}
                             </button>
                         </div>
                     </form>

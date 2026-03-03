@@ -83,26 +83,35 @@ const Verify2FA = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 flex items-center justify-center p-4">
-            <div className="bg-white/90 backdrop-blur-md rounded-2xl shadow-xl p-10 w-full max-w-md border border-gray-200">
-                <h2 className="text-3xl font-bold text-center bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4">
-                    Two-Factor Authentication
-                </h2>
-                <p className="text-gray-600 text-center mb-8">
-                    Enter the 6-digit code sent to your email
+        <div className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden">
+            {/* Background Orbs */}
+            <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-holo-cyan/10 rounded-full blur-[120px] animate-pulse" />
+            <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-holo-magenta/10 rounded-full blur-[120px] animate-pulse-slow" />
+
+            <div className="glass-card p-12 w-full max-w-md relative z-10 animate-in fade-in zoom-in duration-700">
+                <div className="text-center mb-10">
+                    <div className="w-20 h-20 bg-holo-cyan/10 border border-holo-cyan/20 rounded-3xl mx-auto flex-center mb-6 shadow-neon-cyan/20">
+                        <Shield className="text-holo-cyan" size={40} />
+                    </div>
+                    <h2 className="text-3xl font-black neon-text-cyan tracking-tighter uppercase italic mb-2">
+                        Account <span className="text-white">Verification</span>
+                    </h2>
+                    <p className="text-slate-500 text-[10px] font-black uppercase tracking-[0.4em]">Two-Factor Authentication Required</p>
+                </div>
+
+                <p className="text-slate-400 text-center text-xs mb-10 leading-relaxed font-medium">
+                    Please enter the 6-digit verification code sent to your registered email address.
                 </p>
 
                 {error && (
-                    <div className="bg-red-50 text-red-600 p-3 rounded-md mb-6 text-sm border border-red-200">
+                    <div className="mb-8 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-500 text-xs font-bold uppercase tracking-wider animate-shake">
                         {error}
                     </div>
                 )}
 
-                <form onSubmit={handleSubmit} className="space-y-6">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Verification Code
-                        </label>
+                <form onSubmit={handleSubmit} className="space-y-8">
+                    <div className="space-y-4">
+                        <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest text-center italic">Verification Code</label>
                         <input
                             type="text"
                             value={code}
@@ -111,46 +120,46 @@ const Verify2FA = () => {
                             maxLength={6}
                             required
                             autoFocus
-                            className="w-full py-3 px-4 text-center text-2xl font-mono border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                            className="w-full py-6 px-4 text-center text-4xl font-black bg-white/5 border border-white/10 rounded-2xl focus:neon-border-cyan focus:outline-none text-holo-cyan transition-all tracking-[0.5em] placeholder-slate-800"
                         />
                     </div>
 
                     <button
                         type="submit"
                         disabled={loading || code.length !== 6}
-                        className="w-full py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-medium text-lg hover:shadow-lg transition-all duration-200 disabled:opacity-50"
+                        className="w-full btn-holo btn-holo-cyan py-5 text-sm"
                     >
-                        {loading ? 'Verifying...' : 'Verify'}
+                        {loading ? 'Verifying Code...' : 'Confirm and Log In'}
                     </button>
                 </form>
 
-                <div className="text-center mt-6">
+                <div className="text-center mt-10 space-y-6">
                     <button
                         onClick={handleResendCode}
                         disabled={!canResend || resending}
-                        className="inline-flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800 disabled:text-gray-400 disabled:cursor-not-allowed"
+                        className="inline-flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.2em] text-holo-cyan hover:neon-text-cyan transition-all disabled:text-slate-600 disabled:cursor-not-allowed group"
                     >
-                        <RefreshCw size={16} className="inline-block" />
+                        <RefreshCw size={14} className={`group-hover:rotate-180 transition-transform duration-500 ${resending ? 'animate-spin' : ''}`} />
                         {resending
-                            ? 'Sending...'
+                            ? 'Sending Code...'
                             : canResend
-                                ? 'Resend Code'
-                                : `Resend Code (${resendTimer}s)`}
+                                ? 'Resend Verification Code'
+                                : `Resend available in: ${resendTimer}s`}
                     </button>
-                </div>
 
-                <div className="text-center mt-6">
-                    <button
-                        onClick={() => {
-                            localStorage.removeItem('pending_2fa_user_id');
-                            localStorage.removeItem('pending_2fa_email');
-                            localStorage.removeItem('pending_2fa_password');
-                            navigate('/login');
-                        }}
-                        className="text-sm text-gray-600 hover:text-gray-800"
-                    >
-                        Back to Login
-                    </button>
+                    <div className="pt-8 border-t border-white/5">
+                        <button
+                            onClick={() => {
+                                localStorage.removeItem('pending_2fa_user_id');
+                                localStorage.removeItem('pending_2fa_email');
+                                localStorage.removeItem('pending_2fa_password');
+                                navigate('/login');
+                            }}
+                            className="text-[10px] font-bold text-slate-500 hover:text-white uppercase tracking-widest transition-colors flex items-center justify-center gap-2 mx-auto"
+                        >
+                            <span>Back to Login</span>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

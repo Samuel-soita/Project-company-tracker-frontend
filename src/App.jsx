@@ -2,33 +2,38 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { Suspense, lazy } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
+import Layout from './components/Layout';
 import ErrorBoundary from './components/ErrorBoundary';
 
-// Lazy load pages for better performance
+// Lazy load pages for premium performance & holographic loading feel
 const Login = lazy(() => import('./pages/Login'));
 const SignUp = lazy(() => import('./pages/SignUp'));
 const Verify2FA = lazy(() => import('./pages/Verify2FA'));
 const InvitationResponse = lazy(() => import('./pages/InvitationResponse'));
-const EmployeeDashboard = lazy(() => import('./pages/StudentDashboard'));
-const ManagerDashboard = lazy(() => import('./pages/AdminDashboard'));
+const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
+const StudentDashboard = lazy(() => import('./pages/StudentDashboard'));
 const ProjectDetails = lazy(() => import('./pages/ProjectDetails'));
 const EditProject = lazy(() => import('./pages/EditProject'));
 
-// Dashboard Router Component
+// Dashboard Router to determine which dashboard to show
 const DashboardRouter = () => {
   const { user } = useAuth();
-
-  if (!user) {
-    return <Navigate to="/login" replace />;
+  if (user?.role === 'Manager' || user?.role === 'Admin') {
+    return <AdminDashboard />;
   }
-
-  return user.role === 'Manager' ? <ManagerDashboard /> : <EmployeeDashboard />;
+  return <StudentDashboard />;
 };
 
-// Loading component for Suspense fallback
+// Manager Dashboard Alias (for backward compatibility if needed)
+const ManagerDashboard = () => <AdminDashboard />;
+
+// Premium holographic loading spinner
 const LoadingSpinner = () => (
-  <div className="min-h-screen bg-gradient-to-br from-gray-50 via-orange-50 to-red-50 flex items-center justify-center">
-    <div className="w-16 h-16 border-4 border-orange-600 border-t-transparent rounded-full animate-spin"></div>
+  <div className="min-h-screen bg-[#020617] flex items-center justify-center">
+    <div className="relative">
+      <div className="w-16 h-16 border-4 border-holo-cyan/20 border-t-holo-cyan rounded-full animate-spin shadow-[0_0_15px_rgba(0,243,255,0.5)]"></div>
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 bg-holo-cyan/10 rounded-full blur-md animate-pulse"></div>
+    </div>
   </div>
 );
 
@@ -39,56 +44,34 @@ function App() {
         <AuthProvider>
           <Suspense fallback={<LoadingSpinner />}>
             <Routes>
-          {/* Public Routes */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<SignUp />} />
-          <Route path="/verify-2fa" element={<Verify2FA />} />
-          <Route path="/invitations/:projectId/:action" element={<InvitationResponse />} />
+              {/* Public Routes */}
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<SignUp />} />
+              <Route path="/verify-2fa" element={<Verify2FA />} />
+              <Route path="/invitations/:projectId/:action" element={<InvitationResponse />} />
 
-          {/* Protected Routes */}
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <DashboardRouter />
-              </ProtectedRoute>
-            }
-          />
+              {/* Protected Routes Wrapped in Layout */}
+              <Route
+                path="/*"
+                element={
+                  <ProtectedRoute>
+                    <Layout>
+                      <Routes>
+                        <Route path="/dashboard" element={<DashboardRouter />} />
+                        <Route path="/projects/:id" element={<ProjectDetails />} />
+                        <Route path="/projects/:id/edit" element={<EditProject />} />
+                        <Route path="/manager" element={<ManagerDashboard />} />
+                        {/* Catch all for protected routes */}
+                        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+                      </Routes>
+                    </Layout>
+                  </ProtectedRoute>
+                }
+              />
 
-          <Route
-            path="/projects/:id"
-            element={
-              <ProtectedRoute>
-                <ProjectDetails />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/projects/:id/edit"
-            element={
-              <ProtectedRoute>
-                <EditProject />
-              </ProtectedRoute>
-            }
-          />
-
-          {/* Manager Only Routes */}
-          <Route
-            path="/manager"
-            element={
-              <ProtectedRoute requireManager>
-                <ManagerDashboard />
-              </ProtectedRoute>
-            }
-          />
-
-          {/* Default Route */}
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-
-            {/* Catch all - redirect to dashboard */}
-            <Route path="*" element={<Navigate to="/dashboard" replace />} />
-          </Routes>
+              {/* Default Redirect */}
+              <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            </Routes>
           </Suspense>
         </AuthProvider>
       </Router>

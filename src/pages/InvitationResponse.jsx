@@ -44,56 +44,79 @@ const InvitationResponse = () => {
     }, [projectId, action, user, navigate]);
 
     return (
-        <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
-            <div className="bg-white rounded-2xl shadow-lg p-8 w-full max-w-md text-center">
+        <div className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden">
+            {/* Background Orbs */}
+            <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-holo-cyan/10 rounded-full blur-[120px] animate-pulse" />
+            <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-holo-magenta/10 rounded-full blur-[120px] animate-pulse-slow" />
+
+            <div className="glass-card p-12 w-full max-w-md relative z-10 animate-in fade-in zoom-in duration-700 text-center">
                 {loading && (
-                    <>
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                        <p className="text-gray-600">Processing your response...</p>
-                    </>
+                    <div className="flex-center flex-col gap-8 py-10">
+                        <div className="loader-holo"></div>
+                        <p className="neon-text-cyan font-black tracking-[0.4em] text-[10px] animate-pulse uppercase">
+                            Processing Request...
+                        </p>
+                    </div>
                 )}
 
                 {!loading && message && (
-                    <>
-                        <div className="mb-4">
+                    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                        <div className="mb-8">
                             {action === 'accept' ? (
-                                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
-                                    <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                <div className="w-20 h-20 bg-holo-cyan/10 border border-holo-cyan/20 rounded-3xl mx-auto flex-center shadow-neon-cyan/20 animate-bounce-slow">
+                                    <svg className="w-10 h-10 text-holo-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                                     </svg>
                                 </div>
                             ) : (
-                                <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto">
-                                    <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                <div className="w-20 h-20 bg-holo-magenta/10 border border-holo-magenta/20 rounded-3xl mx-auto flex-center shadow-neon-magenta/20">
+                                    <svg className="w-10 h-10 text-holo-magenta" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
                                     </svg>
                                 </div>
                             )}
                         </div>
-                        <h2 className="text-2xl font-bold mb-2">
-                            {action === 'accept' ? 'Invitation Accepted!' : 'Invitation Declined'}
+
+                        <h2 className={`text-3xl font-black tracking-tighter uppercase italic mb-4 ${action === 'accept' ? 'neon-text-cyan' : 'neon-text-magenta'}`}>
+                            {action === 'accept' ? 'Invitation Accepted' : 'Invitation Declined'}
                         </h2>
-                        <p className="text-gray-600 mb-4">{message}</p>
-                        <p className="text-sm text-gray-500">Redirecting to dashboard...</p>
-                    </>
+
+                        <p className="text-slate-400 text-sm font-medium mb-10 leading-relaxed">
+                            {message}
+                        </p>
+
+                        <div className="flex flex-col items-center gap-4">
+                            <div className="flex items-center gap-3 text-slate-500 text-[10px] font-black uppercase tracking-[0.3em]">
+                                <span className="w-2 h-2 bg-holo-cyan rounded-full animate-ping"></span>
+                                Redirecting to Project Dashboard
+                            </div>
+                        </div>
+                    </div>
                 )}
 
                 {!loading && error && (
-                    <>
-                        <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                        <div className="w-20 h-20 bg-red-500/10 border border-red-500/20 rounded-3xl mx-auto flex-center mb-8 shadow-red-500/10">
+                            <svg className="w-10 h-10 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                         </div>
-                        <h2 className="text-2xl font-bold text-red-600 mb-2">Error</h2>
-                        <p className="text-gray-600 mb-4">{error}</p>
+
+                        <h2 className="text-2xl font-black text-red-500 uppercase tracking-tighter italic mb-4">
+                            Process Error
+                        </h2>
+
+                        <p className="text-slate-400 text-sm font-medium mb-10 leading-relaxed">
+                            {error}
+                        </p>
+
                         <button
                             onClick={() => navigate('/login')}
-                            className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                            className="w-full btn-holo btn-holo-cyan py-5 text-sm"
                         >
-                            Go to Login
+                            Return to Login Page
                         </button>
-                    </>
+                    </div>
                 )}
             </div>
         </div>

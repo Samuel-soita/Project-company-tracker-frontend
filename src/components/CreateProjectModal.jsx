@@ -132,145 +132,148 @@ const CreateProjectModal = ({ onClose, onSuccess, project = null }) => {
     };
 
     return (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-                <div className="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center">
-                    <h2 className="text-2xl font-bold">
-                        {isEdit ? 'Edit Project' : 'Create new Project'}
+        <div className="fixed inset-0 bg-deep-950/80 backdrop-blur-xl flex items-center justify-center p-4 z-[100] animate-in fade-in zoom-in duration-300">
+            <div className="glass-card w-full max-w-2xl max-h-[90vh] overflow-y-auto border-holo-cyan/20 shadow-neon-cyan/20">
+                <div className="sticky top-0 bg-deep-950/40 backdrop-blur-md border-b border-white/5 px-10 py-6 flex justify-between items-center z-10">
+                    <h2 className="text-3xl font-black neon-text-cyan uppercase tracking-tighter italic">
+                        {isEdit ? 'Modify' : 'Initialize'} <span className="text-white">Project</span>
                     </h2>
                     <button
                         onClick={onClose}
-                        className="text-gray-500 hover:text-gray-700 transition-colors"
+                        className="p-2 hover:bg-white/5 rounded-xl text-slate-400 hover:text-white transition-all"
                     >
                         <X size={24} />
                     </button>
                 </div>
 
-                <form onSubmit={handleSubmit} className="p-6 space-y-6">
+                <form onSubmit={handleSubmit} className="p-10 space-y-8">
                     {error && (
-                        <div className="bg-red-50 text-red-500 p-3 rounded-md text-sm">
+                        <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-4 rounded-xl text-xs font-bold uppercase tracking-widest animate-pulse">
                             {error}
                         </div>
                     )}
 
-                    {/* Project Name */}
-                    <div>
-                        <label htmlFor="project-name" className="block text-sm font-medium text-gray-700 mb-2">
-                            Project Name <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                            id="project-name"
-                            type="text"
-                            name="name"
-                            value={formData.name}
-                            onChange={handleChange}
-                            required
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder="Enter project name"
-                        />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div className="space-y-8">
+                            {/* Project Name */}
+                            <div>
+                                <label htmlFor="project-name" className="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3">
+                                    Project Name <span className="text-holo-cyan">*</span>
+                                </label>
+                                <input
+                                    id="project-name"
+                                    type="text"
+                                    name="name"
+                                    value={formData.name}
+                                    onChange={handleChange}
+                                    required
+                                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:neon-border-cyan transition-all placeholder-slate-600 font-bold"
+                                    placeholder="SYSTEM-X"
+                                />
+                            </div>
+
+                            {/* GitHub Link */}
+                            <div>
+                                <label htmlFor="github-link" className="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3">
+                                    Repository Link (GitHub)
+                                </label>
+                                <input
+                                    id="github-link"
+                                    type="url"
+                                    name="github_link"
+                                    value={formData.github_link}
+                                    onChange={handleChange}
+                                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:neon-border-cyan transition-all placeholder-slate-600"
+                                    placeholder="https://github.com/..."
+                                />
+                            </div>
+                        </div>
+
+                        {/* Project Description */}
+                        <div>
+                            <label htmlFor="project-description" className="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3">
+                                Project Description
+                            </label>
+                            <textarea
+                                id="project-description"
+                                name="description"
+                                value={formData.description}
+                                onChange={handleChange}
+                                rows={5}
+                                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-4 text-white focus:outline-none focus:neon-border-cyan transition-all placeholder-slate-600 resize-none leading-relaxed"
+                                placeholder="Describe system objectives..."
+                            />
+                        </div>
                     </div>
 
-                    {/* Project Description */}
-                    <div>
-                        <label htmlFor="project-description" className="block text-sm font-medium text-gray-700 mb-2">
-                            Project Description
-                        </label>
-                        <textarea
-                            id="project-description"
-                            name="description"
-                            value={formData.description}
-                            onChange={handleChange}
-                            rows={4}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder="Describe your project"
-                        />
-                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        {/* Project Type Dropdown */}
+                        <div>
+                            <label htmlFor="project-type" className="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3">
+                                Project Category
+                            </label>
+                            <select
+                                id="project-type"
+                                name="class_id"
+                                value={formData.class_id}
+                                onChange={handleChange}
+                                className="w-full bg-slate-900/90 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:neon-border-cyan transition-all appearance-none cursor-pointer"
+                            >
+                                <option value="" className="bg-slate-900 text-slate-500 font-bold">Select Category...</option>
+                                {classes.map((cls) => (
+                                    <option key={cls.id} value={cls.id}>
+                                        {cls.name}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
 
-                    {/* Project Owner (readonly) */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Project Owner
-                        </label>
-                        <input
-                            type="text"
-                            value={user?.name || user?.email || 'You'}
-                            disabled
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-600 cursor-not-allowed"
-                        />
-                    </div>
+                        {/* Team Dropdown */}
+                        <div>
+                            <label htmlFor="team" className="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3">
+                                Assigned Team
+                            </label>
+                            <select
+                                id="team"
+                                name="cohort_id"
+                                value={formData.cohort_id}
+                                onChange={handleChange}
+                                className="w-full bg-slate-900/90 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:neon-border-cyan transition-all appearance-none cursor-pointer"
+                            >
+                                <option value="" className="bg-slate-900 text-slate-500 font-bold">Select Team...</option>
+                                {cohorts.map((cohort) => (
+                                    <option key={cohort.id} value={cohort.id}>
+                                        {cohort.name}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
 
-                    {/* GitHub Link */}
-                    <div>
-                        <label htmlFor="github-link" className="block text-sm font-medium text-gray-700 mb-2">
-                            GitHub Link
-                        </label>
-                        <input
-                            id="github-link"
-                            type="url"
-                            name="github_link"
-                            value={formData.github_link}
-                            onChange={handleChange}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder="https://github.com/username/repo"
-                        />
-                    </div>
-
-                    {/* Project Type Dropdown */}
-                    <div>
-                        <label htmlFor="project-type" className="block text-sm font-medium text-gray-700 mb-2">
-                            Project Type
-                        </label>
-                        <select
-                            id="project-type"
-                            name="class_id"
-                            value={formData.class_id}
-                            onChange={handleChange}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        >
-                            <option value="">Select a project type</option>
-                            {classes.map((cls) => (
-                                <option key={cls.id} value={cls.id}>
-                                    {cls.name} {cls.track ? `- ${cls.track}` : ''}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-
-                    {/* Team Dropdown */}
-                    <div>
-                        <label htmlFor="team" className="block text-sm font-medium text-gray-700 mb-2">
-                            Team
-                        </label>
-                        <select
-                            id="team"
-                            name="cohort_id"
-                            value={formData.cohort_id}
-                            onChange={handleChange}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        >
-                            <option value="">Select a team</option>
-                            {cohorts.map((cohort) => (
-                                <option key={cohort.id} value={cohort.id}>
-                                    {cohort.name}
-                                </option>
-                            ))}
-                        </select>
+                        {/* Project Owner (readonly) */}
+                        <div>
+                            <label className="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3">
+                                Project Manager
+                            </label>
+                            <div className="w-full bg-white/5 border border-white/5 rounded-xl px-4 py-3 text-slate-400 font-bold text-sm truncate">
+                                {user?.name || user?.email || 'You'}
+                            </div>
+                        </div>
                     </div>
 
                     {/* Members Email Input */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                            {isEdit ? 'Project Members' : 'Invite Members'}
+                    <div className="space-y-6">
+                        <label className="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">
+                            {isEdit ? 'Current Team Members' : 'Invite Team Members'}
                         </label>
 
                         {!isEdit && (
-                            <div className="flex gap-2 mb-3">
+                            <div className="flex gap-4">
                                 <input
                                     type="email"
                                     value={memberEmail}
                                     onChange={(e) => setMemberEmail(e.target.value)}
-                                    placeholder="Enter member email address"
-                                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    placeholder="operator@matrix.net"
+                                    className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:neon-border-cyan transition-all placeholder-slate-600"
                                     onKeyDown={(e) => {
                                         if (e.key === 'Enter') {
                                             e.preventDefault();
@@ -282,7 +285,7 @@ const CreateProjectModal = ({ onClose, onSuccess, project = null }) => {
                                 <button
                                     type="button"
                                     onClick={handleAddMember}
-                                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                                    className="p-3 bg-holo-cyan text-deep-950 rounded-xl hover:shadow-neon-cyan transition-all active:scale-95"
                                 >
                                     <Plus size={20} />
                                 </button>
@@ -290,37 +293,35 @@ const CreateProjectModal = ({ onClose, onSuccess, project = null }) => {
                         )}
 
                         {members.length > 0 && (
-                            <div className="space-y-2">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 {members.map((member, index) => (
                                     <div
                                         key={index}
-                                        className="flex items-center justify-between bg-gray-50 p-3 rounded-md"
+                                        className="flex items-center justify-between bg-white/5 p-4 rounded-xl border border-white/5 group hover:border-holo-cyan/30 transition-all"
                                     >
-                                        <div className="flex-1">
-                                            <div className="flex items-center gap-2">
-                                                <p className="font-medium text-sm">{member.name || member.email}</p>
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex items-center gap-3">
+                                                <p className="font-bold text-sm text-white truncate">{member.name || member.email}</p>
                                                 {member.status && (
-                                                    <span className={`text-xs px-2 py-0.5 rounded ${member.status === 'accepted'
-                                                        ? 'bg-green-100 text-green-800'
-                                                        : 'bg-yellow-100 text-yellow-800'
+                                                    <span className={`text-[8px] px-2 py-0.5 rounded-full font-black uppercase tracking-widest ${member.status === 'accepted'
+                                                        ? 'bg-green-500/20 text-green-400'
+                                                        : 'bg-yellow-500/20 text-yellow-400'
                                                         }`}>
                                                         {member.status}
                                                     </span>
                                                 )}
                                             </div>
-                                            <p className="text-xs text-gray-500">
-                                                {isEdit
-                                                    ? member.email
-                                                    : 'Invitation will be sent via email'}
+                                            <p className="text-[10px] text-slate-500 uppercase tracking-wider mt-1">
+                                                {isEdit ? member.email : 'Link Pending'}
                                             </p>
                                         </div>
                                         {!isEdit && (
                                             <button
                                                 type="button"
                                                 onClick={() => handleRemoveMember(index)}
-                                                className="text-red-600 hover:text-red-700 transition-colors"
+                                                className="p-2 text-slate-500 hover:text-red-500 transition-colors"
                                             >
-                                                <Trash2 size={18} />
+                                                <Trash2 size={16} />
                                             </button>
                                         )}
                                     </div>
@@ -330,20 +331,29 @@ const CreateProjectModal = ({ onClose, onSuccess, project = null }) => {
                     </div>
 
                     {/* Action Buttons */}
-                    <div className="flex gap-3 pt-4">
+                    <div className="flex gap-4 pt-6">
                         <button
                             type="button"
                             onClick={onClose}
-                            className="flex-1 px-6 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
+                            className="flex-1 py-4 bg-white/5 text-slate-400 font-black rounded-2xl hover:bg-white/10 transition-all uppercase tracking-[0.2em] text-[10px] border border-white/5"
                         >
                             Cancel
                         </button>
                         <button
                             type="submit"
                             disabled={loading}
-                            className="flex-1 px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 transition-colors"
+                            className="flex-[2] btn-holo py-4 shadow-neon-cyan/20"
                         >
-                            {loading ? 'Saving...' : isEdit ? 'Update Project' : 'Create Project'}
+                            {loading ? (
+                                <div className="flex-center gap-3 uppercase">
+                                    <div className="w-4 h-4 border-2 border-deep-950/30 border-t-deep-950 rounded-full animate-spin" />
+                                    Synchronizing...
+                                </div>
+                            ) : isEdit ? (
+                                'Save Internal Changes'
+                            ) : (
+                                'Establish Project'
+                            )}
                         </button>
                     </div>
                 </form>
@@ -353,3 +363,4 @@ const CreateProjectModal = ({ onClose, onSuccess, project = null }) => {
 };
 
 export default CreateProjectModal;
+

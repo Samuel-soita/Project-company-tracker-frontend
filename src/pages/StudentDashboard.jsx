@@ -6,6 +6,7 @@ import { authAPI } from '../api/auth';
 import { Trash2, Edit, Eye, Plus, Shield, Search } from 'lucide-react';
 import CreateProjectModal from '../components/CreateProjectModal';
 import InvitationNotification from '../components/InvitationNotification';
+import NotificationDropdown from '../components/NotificationDropdown';
 
 const StudentDashboard = () => {
     const { user, logout } = useAuth();
@@ -104,202 +105,218 @@ const StudentDashboard = () => {
     const filteredOtherProjects = filterProjects(otherProjects);
 
     const ProjectCard = ({ project, canEdit = false }) => (
-        <div className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 p-6 border border-gray-200 hover:border-indigo-300 relative overflow-hidden hover:-translate-y-1.5">
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
-
-            {project.class && (
-                <div className="absolute top-4 right-4">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-purple-100 to-pink-100 text-purple-800 shadow-sm">
+        <div className="glass-card p-8 flex flex-col h-full hover:neon-border-magenta group border-t-2 border-t-transparent hover:border-t-holo-magenta transition-all duration-500 relative overflow-hidden">
+            <div className="flex justify-between items-start mb-6">
+                <h3 className="text-xl font-bold text-white group-hover:neon-text-magenta transition-colors line-clamp-1 truncate pr-16">{project.name}</h3>
+                {project.class && (
+                    <span className="absolute top-8 right-8 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-holo-magenta/10 text-holo-magenta border border-holo-magenta/30 shadow-neon-magenta">
                         {project.class.name}
+                    </span>
+                )}
+            </div>
+
+            {project.cover_image && (
+                <div className="relative mb-6 rounded-xl overflow-hidden aspect-video border border-white/5">
+                    <img
+                        src={project.cover_image}
+                        alt={project.name}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 opacity-80 group-hover:opacity-100"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-deep-950/60 to-transparent"></div>
+                </div>
+            )}
+
+            {project.owner_id !== user.id && project.owner_name && (
+                <div className="flex items-center gap-2 mb-4">
+                    <div className="w-6 h-6 rounded-full bg-holo-cyan/20 border border-holo-cyan/30 flex-center text-[8px] font-black text-holo-cyan uppercase">
+                        {project.owner_name.charAt(0)}
+                    </div>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">
+                        OP: <span className="text-slate-300">{project.owner_name}</span>
                     </span>
                 </div>
             )}
 
-            {project.cover_image && (
-                <img
-                    src={project.cover_image}
-                    alt={project.name}
-                    className="w-full h-36 object-cover rounded-xl mb-4 group-hover:scale-105 transition-transform duration-300"
-                />
-            )}
+            <p className="text-slate-400 text-sm mb-6 line-clamp-2 leading-relaxed">
+                {project.description || 'No system briefing available for this project node.'}
+            </p>
 
-            <h3 className="text-xl font-bold mb-2 text-gray-900 group-hover:text-indigo-600 transition-colors">{project.name}</h3>
-            {project.owner_id !== user.id && project.owner_name && (
-                <p className="text-xs text-gray-500 mb-3 flex items-center gap-1">
-                    <span className="font-medium text-gray-700">Owner:</span> {project.owner_name}
-                </p>
-            )}
-            <p className="text-gray-600 text-sm mb-4 line-clamp-2 leading-relaxed">{project.description}</p>
-
-            {project.members && project.members.length > 0 && (
-                <div className="mb-4">
-                    <p className="text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wide">Team Members</p>
-                    <div className="flex flex-wrap gap-2">
-                        {project.members.slice(0, 3).map((member, index) => (
-                            <span
-                                key={index}
-                                className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-indigo-50 to-purple-50 text-indigo-700 border border-indigo-200"
-                            >
-                                {member.name}
-                            </span>
+            <div className="mt-auto space-y-6">
+                {project.members && project.members.length > 0 && (
+                    <div className="flex -space-x-3">
+                        {project.members.slice(0, 4).map((member, index) => (
+                            <div key={index} className="w-10 h-10 rounded-full bg-slate-800 border-2 border-deep-900 flex-center text-xs font-bold text-holo-magenta shadow-lg" title={member.name}>
+                                {member.name.charAt(0)}
+                            </div>
                         ))}
-                        {project.members.length > 3 && (
-                            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600 border border-gray-300">
-                                +{project.members.length - 3} more
-                            </span>
+                        {project.members.length > 4 && (
+                            <div className="w-10 h-10 rounded-full bg-white/5 border-2 border-deep-900 flex-center text-[10px] font-bold text-slate-400 backdrop-blur-sm">
+                                +{project.members.length - 4}
+                            </div>
                         )}
                     </div>
-                </div>
-            )}
-
-            {project.github_link && (
-                <a
-                    href={project.github_link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-indigo-600 text-sm hover:text-indigo-700 font-medium hover:underline block mb-4 flex items-center gap-1"
-                >
-                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
-                    </svg>
-                    View Repository
-                </a>
-            )}
-
-            <div className="flex gap-2 mt-5 pt-4 border-t border-gray-100">
-                <button
-                    onClick={() => handleViewProject(project.id)}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-indigo-50 to-purple-50 hover:from-indigo-100 hover:to-purple-100 text-indigo-700 rounded-xl text-sm font-medium transition-all duration-200 border border-indigo-200 hover:border-indigo-300"
-                >
-                    <Eye size={16} />
-                    Track Progress
-                </button>
-
-                {canEdit && (
-                    <>
-                        <button
-                            onClick={() => handleEditProject(project.id)}
-                            className="flex items-center justify-center gap-1 px-3 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-medium transition-all duration-200 hover:shadow-md"
-                            title="Edit Project"
-                        >
-                            <Edit size={16} />
-                        </button>
-                        <button
-                            onClick={() => handleDeleteProject(project.id)}
-                            className="flex items-center justify-center gap-1 px-3 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-sm font-medium transition-all duration-200 hover:shadow-md"
-                            title="Delete Project"
-                        >
-                            <Trash2 size={16} />
-                        </button>
-                    </>
                 )}
+
+                {project.github_link && (
+                    <a
+                        href={project.github_link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-holo-cyan hover:text-white transition-colors group/link"
+                    >
+                        <svg className="w-4 h-4 fill-current transition-transform group-hover/link:rotate-12" viewBox="0 0 24 24">
+                            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+                        </svg>
+                        Source Repository
+                    </a>
+                )}
+
+                <div className="flex gap-3">
+                    <button
+                        onClick={() => handleViewProject(project.id)}
+                        className="flex-1 flex-center gap-2 px-4 py-3 bg-white/5 hover:bg-white/10 text-white rounded-xl text-xs font-black uppercase tracking-widest transition-all border border-white/5 hover:border-white/20"
+                    >
+                        <Eye size={16} className="text-holo-magenta" />
+                        Track Progress
+                    </button>
+
+                    {canEdit && (
+                        <div className="flex gap-2">
+                            <button
+                                onClick={() => handleEditProject(project.id)}
+                                className="p-3 bg-white/5 hover:bg-blue-500/20 text-blue-400 hover:text-blue-300 rounded-xl transition-all border border-white/5 hover:border-blue-500/30"
+                                title="Edit Project"
+                            >
+                                <Edit size={16} />
+                            </button>
+                            <button
+                                onClick={() => handleDeleteProject(project.id)}
+                                className="p-3 bg-white/5 hover:bg-red-500/20 text-red-500 hover:text-red-400 rounded-xl transition-all border border-white/5 hover:border-red-500/30"
+                                title="Delete Project"
+                            >
+                                <Trash2 size={16} />
+                            </button>
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     );
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-gray-50 via-indigo-50 to-purple-50 flex items-center justify-center">
-                <div className="text-center">
-                    <div className="w-16 h-16 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                    <p className="text-lg font-medium text-gray-700">Loading projects...</p>
+            <div className="min-h-screen flex items-center justify-center p-8">
+                <div className="flex-center flex-col gap-8">
+                    <div className="loader-holo"></div>
+                    <p className="neon-text-magenta font-black tracking-[0.4em] text-xs animate-pulse uppercase">
+                        Synchronizing Neural Uplink...
+                    </p>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 via-indigo-50 to-purple-50">
+        <div className="p-8 max-w-[1600px] mx-auto min-h-screen">
             {/* Header */}
-            <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md shadow-md border-b border-gray-200">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex justify-between items-center">
-                    <div>
-                        <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                            Moringa Project Planner
-                        </h1>
-                        <p className="text-gray-600 mt-1 text-sm">
-                            Welcome back, <span className="font-semibold">{user?.name}</span>
-                        </p>
-                    </div>
-                    <div className="flex items-center gap-3">
-                        <InvitationNotification />
-                        <button
-                            onClick={handleToggle2FA}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-xl font-medium transition-all duration-200 ${twoFactorEnabled
-                                ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-md hover:shadow-lg hover:scale-105'
-                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300'
-                                }`}
-                        >
-                            <Shield size={18} />
-                            <span className="text-sm">{twoFactorEnabled ? '2FA Enabled' : 'Enable 2FA'}</span>
-                        </button>
-                        <button
-                            onClick={logout}
-                            className="px-4 py-2 bg-gradient-to-r from-red-500 to-pink-600 text-white rounded-xl hover:shadow-lg transition-all duration-200 hover:scale-105 font-medium text-sm"
-                        >
-                            Logout
-                        </button>
-                    </div>
+            <header className="flex flex-col lg:flex-row lg:items-center justify-between gap-8 mb-16">
+                <div>
+                    <h1 className="text-4xl font-black neon-text-cyan flex items-center gap-4 tracking-tighter uppercase italic">
+                        Smirror <span className="text-white">Projects</span>
+                        <div className="h-1 lg:w-32 bg-holo-cyan/10 rounded-full" />
+                    </h1>
+                    <p className="text-slate-500 mt-2 text-xs font-black uppercase tracking-[0.2em]">
+                        Welcome back, <span className="text-white">{user?.name}</span>
+                    </p>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-4 lg:bg-white/5 lg:p-2 lg:rounded-2xl lg:border lg:border-white/5">
+                    <InvitationNotification />
+                    <NotificationDropdown />
+                    <button
+                        onClick={handleToggle2FA}
+                        className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-[10px] uppercase tracking-widest transition-all duration-500 border ${twoFactorEnabled
+                            ? 'border-green-500/50 text-green-400 bg-green-500/10 shadow-[0_0_15px_rgba(34,197,94,0.2)]'
+                            : 'border-white/10 text-slate-400 bg-white/5 hover:border-holo-cyan/50 hover:text-holo-cyan'
+                            }`}
+                    >
+                        <Shield size={14} />
+                        {twoFactorEnabled ? '2FA ACTIVE' : 'SECURE OPS'}
+                    </button>
+                    <button
+                        onClick={logout}
+                        className="px-6 py-3 bg-white/5 hover:bg-red-500/10 text-slate-400 hover:text-red-500 rounded-xl border border-white/5 hover:border-red-500/30 font-black text-[10px] uppercase tracking-widest transition-all"
+                    >
+                        Logout
+                    </button>
                 </div>
             </header>
 
-            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+            <main className="animate-in fade-in slide-in-from-bottom-8 duration-1000">
                 {/* Search Filters */}
-                <div className="mb-8 max-w-3xl grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {[{ value: classFilter, set: setClassFilter, placeholder: 'Filter by class name...' },
-                      { value: cohortFilter, set: setCohortFilter, placeholder: 'Filter by cohort name...' }].map((filter, idx) => (
-                        <div key={idx} className="relative">
-                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                <Search size={20} className="text-gray-400" />
-                            </div>
-                            <input
-                                type="text"
-                                placeholder={filter.placeholder}
-                                value={filter.value}
-                                onChange={(e) => filter.set(e.target.value)}
-                                className="w-full pl-12 pr-4 py-3 bg-white border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent shadow-sm text-gray-900 placeholder-gray-400"
-                            />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16">
+                    <div className="relative group">
+                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <Search size={18} className="text-slate-500 group-focus-within:text-holo-cyan transition-colors" />
                         </div>
-                    ))}
+                        <input
+                            type="text"
+                            placeholder="Filter by class name..."
+                            value={classFilter}
+                            onChange={(e) => setClassFilter(e.target.value)}
+                            className="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:neon-border-cyan transition-all placeholder-slate-600 text-slate-200"
+                        />
+                    </div>
+                    <div className="relative group">
+                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <Search size={18} className="text-slate-500 group-focus-within:text-holo-magenta transition-colors" />
+                        </div>
+                        <input
+                            type="text"
+                            placeholder="Filter by cohort name..."
+                            value={cohortFilter}
+                            onChange={(e) => setCohortFilter(e.target.value)}
+                            className="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:border-holo-magenta/50 focus:shadow-[0_0_15px_rgba(255,0,255,0.2)] transition-all placeholder-slate-600 text-slate-200"
+                        />
+                    </div>
                 </div>
 
                 {/* My Projects */}
-                <div className="mb-16">
-                    <div className="flex justify-between items-center mb-8">
+                <section className="mb-20">
+                    <div className="flex-between mb-10">
                         <div>
-                            <h2 className="text-3xl font-bold text-gray-900">My Projects</h2>
-                            <p className="text-gray-600 mt-1">Projects you own and collaborate on</p>
+                            <h2 className="text-3xl font-black neon-text-magenta flex items-center gap-4 tracking-tighter uppercase italic">
+                                Active <span className="text-white">Projects</span>
+                                <span className="text-4xl text-white bg-holo-magenta/10 px-6 py-2 rounded-2xl border border-holo-magenta/30 shadow-neon-magenta not-italic">
+                                    {filteredOwnedProjects.length}
+                                </span>
+                            </h2>
                         </div>
                         <button
                             onClick={() => setShowCreateModal(true)}
-                            className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:shadow-xl transition-all duration-200 hover:scale-105 font-medium"
+                            className="btn-holo btn-holo-magenta h-fit"
                         >
-                            <Plus size={20} />
-                            New Project
+                            <Plus size={22} />
+                            Initialize Project
                         </button>
                     </div>
 
                     {filteredOwnedProjects.length === 0 ? (
-                        <div className="bg-white rounded-2xl shadow-md border border-gray-200 text-center py-16 px-6">
-                            {ownedProjects.length === 0 ? (
-                                <>
-                                    <div className="w-20 h-20 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-full mx-auto mb-4 flex items-center justify-center">
-                                        <Plus size={36} className="text-indigo-600" />
-                                    </div>
-                                    <p className="text-gray-600 mb-6 text-lg">You haven't created any projects yet.</p>
-                                    <button
-                                        onClick={() => setShowCreateModal(true)}
-                                        className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:shadow-lg transition-all duration-200 hover:scale-105 font-medium"
-                                    >
-                                        Create Your First Project
-                                    </button>
-                                </>
-                            ) : (
-                                <p className="text-gray-500 text-lg">No projects match your search.</p>
-                            )}
+                        <div className="glass-card py-20 px-10 text-center flex flex-col items-center group">
+                            <div className="w-20 h-20 rounded-full bg-holo-magenta/10 border border-holo-magenta/20 flex-center mb-6 group-hover:shadow-neon-magenta transition-all duration-500 overflow-hidden relative">
+                                <Plus size={32} className="text-holo-magenta animate-float" />
+                                <div className="absolute inset-0 bg-holo-magenta/5 animate-ping" />
+                            </div>
+                            <p className="text-slate-400 font-bold uppercase tracking-widest text-sm mb-8">No projects detected in this sector.</p>
+                            <button
+                                onClick={() => setShowCreateModal(true)}
+                                className="btn-holo btn-holo-magenta px-10"
+                            >
+                                Create Your First Project
+                            </button>
                         </div>
                     ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div className="bento-grid">
                             {filteredOwnedProjects.map((project) => (
                                 <ProjectCard
                                     key={project.id}
@@ -309,29 +326,29 @@ const StudentDashboard = () => {
                             ))}
                         </div>
                     )}
-                </div>
+                </section>
 
                 {/* Other Projects */}
-                <div>
-                    <div className="mb-8">
-                        <h2 className="text-3xl font-bold text-gray-900">Company Projects</h2>
-                        <p className="text-gray-600 mt-1">Explore projects from your peers</p>
+                <section>
+                    <div className="mb-10">
+                        <h2 className="text-3xl font-black neon-text-cyan flex items-center gap-4 tracking-tighter uppercase italic">
+                            Global <span className="text-white">Stream</span>
+                        </h2>
+                        <p className="text-slate-500 mt-2 text-xs font-black uppercase tracking-[0.2em]">Synchronizing telemetry from all matrix sectors</p>
                     </div>
 
                     {filteredOtherProjects.length === 0 ? (
-                        <div className="bg-white rounded-2xl shadow-md border border-gray-200 text-center py-16 px-6">
-                            <p className="text-gray-500 text-lg">
-                                {otherProjects.length === 0 ? 'No other projects to display.' : 'No projects match your search.'}
-                            </p>
+                        <div className="glass-card py-16 px-10 text-center flex flex-col items-center">
+                            <p className="text-slate-500 font-bold uppercase tracking-[0.2em] text-xs">No external data streams available.</p>
                         </div>
                     ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div className="bento-grid">
                             {filteredOtherProjects.map((project) => (
                                 <ProjectCard key={project.id} project={project} canEdit={false} />
                             ))}
                         </div>
                     )}
-                </div>
+                </section>
             </main>
 
             {showCreateModal && (

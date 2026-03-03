@@ -150,181 +150,204 @@ const EditProject = () => {
 
     if (loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center">
-                <div className="text-lg">Loading project...</div>
+            <div className="min-h-screen flex items-center justify-center p-8">
+                <div className="flex-center flex-col gap-8">
+                    <div className="loader-holo"></div>
+                    <p className="text-neon-cyan font-black tracking-[0.4em] text-xs animate-pulse uppercase">
+                        Accessing Secure Cores...
+                    </p>
+                </div>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="p-8 max-w-[1200px] mx-auto min-h-screen">
             {/* Header */}
-            <header className="bg-white shadow-sm border-b">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-                    <button
-                        onClick={() => navigate(`/projects/${id}`)}
-                        className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
-                    >
-                        <ArrowLeft size={20} />
-                        Back to Project
-                    </button>
+            <header className="flex items-center gap-6 mb-16">
+                <button
+                    onClick={() => navigate(`/projects/${id}`)}
+                    className="p-3 bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white rounded-xl border border-white/5 transition-all group"
+                >
+                    <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
+                </button>
+                <div>
+                    <h1 className="text-4xl font-black neon-text-magenta tracking-tighter uppercase italic">
+                        Project <span className="text-white">Settings</span>
+                    </h1>
+                    <p className="text-slate-500 mt-2 text-[10px] font-black uppercase tracking-[0.3em]">Project: <span className="text-slate-300">{formData.name || 'Unknown'}</span></p>
                 </div>
             </header>
 
-            <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                <div className="bg-white rounded-lg shadow-sm p-6">
-                    <h1 className="text-2xl font-bold mb-6">Edit Project</h1>
+            <main className="animate-in fade-in zoom-in duration-700">
+                <div className="glass-card p-10 relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-holo-magenta/5 rounded-full blur-3xl -content-none pointer-events-none group-hover:bg-holo-magenta/10 transition-all duration-1000" />
 
-                    <form onSubmit={handleSubmit} className="space-y-6">
-                        {/* Project Name */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Project Name <span className="text-red-500">*</span>
-                            </label>
-                            <input
-                                type="text"
-                                value={formData.name}
-                                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="Enter project name"
-                                required
-                            />
+                    <h2 className="text-2xl font-black text-white uppercase italic tracking-tighter mb-10 flex items-center gap-4">
+                        <span className="neon-text-magenta text-3xl">Edit</span> Project
+                    </h2>
+
+                    <form onSubmit={handleSubmit} className="space-y-10">
+                        {/* Grid for basic info */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            {/* Project Name */}
+                            <div className="space-y-3">
+                                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest italic ml-1">
+                                    Project Name <span className="text-holo-magenta">*</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    value={formData.name}
+                                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                    className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl focus:neon-border-magenta focus:outline-none text-white transition-all placeholder-slate-600 font-medium"
+                                    placeholder="Enter project designate"
+                                    required
+                                />
+                            </div>
+
+                            {/* Project Owner (readonly) */}
+                            <div className="space-y-3 opacity-60">
+                                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest italic ml-1">
+                                    Project Manager
+                                </label>
+                                <input
+                                    type="text"
+                                    value={ownerName}
+                                    disabled
+                                    className="w-full px-6 py-4 bg-black/20 border border-white/5 rounded-2xl text-slate-400 cursor-not-allowed font-medium italic"
+                                />
+                            </div>
                         </div>
 
                         {/* Project Description */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <div className="space-y-3">
+                            <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest italic ml-1">
                                 Project Description
                             </label>
                             <textarea
                                 value={formData.description}
                                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="Describe your project"
+                                className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl focus:neon-border-magenta focus:outline-none text-white transition-all placeholder-slate-600 font-medium min-h-[150px]"
+                                placeholder="Describe the project objectives"
                                 rows="4"
                             />
                         </div>
 
-                        {/* Project Owner (readonly) */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Project Owner
-                            </label>
-                            <input
-                                type="text"
-                                value={ownerName}
-                                disabled
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-600 cursor-not-allowed"
-                            />
-                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                            {/* GitHub Link */}
+                            <div className="space-y-3 md:col-span-1">
+                                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest italic ml-1">
+                                    Repository Link (GitHub)
+                                </label>
+                                <input
+                                    type="url"
+                                    value={formData.github_link}
+                                    onChange={(e) => setFormData({ ...formData, github_link: e.target.value })}
+                                    className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl focus:neon-border-magenta focus:outline-none text-white transition-all placeholder-slate-600 font-medium text-sm"
+                                    placeholder="https://github.com/smirror/repo"
+                                />
+                            </div>
 
-                        {/* GitHub Link */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                GitHub Link
-                            </label>
-                            <input
-                                type="url"
-                                value={formData.github_link}
-                                onChange={(e) => setFormData({ ...formData, github_link: e.target.value })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="https://github.com/username/repository"
-                            />
-                        </div>
+                            {/* Class Dropdown */}
+                            <div className="space-y-3">
+                                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest italic ml-1">
+                                    Project Category
+                                </label>
+                                <select
+                                    value={formData.class_id}
+                                    onChange={(e) => setFormData({ ...formData, class_id: e.target.value })}
+                                    className="w-full px-6 py-4 bg-slate-900/90 border border-white/10 rounded-2xl focus:neon-border-magenta focus:outline-none text-white transition-all cursor-pointer appearance-none font-medium text-sm"
+                                >
+                                    <option value="" className="bg-slate-900 text-slate-500 font-bold">UNCATEGORIZED</option>
+                                    {classes.map((cls) => (
+                                        <option key={cls.id} value={cls.id} className="bg-slate-900">
+                                            {cls.name.toUpperCase()} {cls.track ? `- ${cls.track.toUpperCase()}` : ''}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
 
-                        {/* Class Dropdown */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Class
-                            </label>
-                            <select
-                                value={formData.class_id}
-                                onChange={(e) => setFormData({ ...formData, class_id: e.target.value })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            >
-                                <option value="">Select a class (optional)</option>
-                                {classes.map((cls) => (
-                                    <option key={cls.id} value={cls.id}>
-                                        {cls.name} {cls.track ? `- ${cls.track}` : ''}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-
-                        {/* Cohort Dropdown */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Cohort
-                            </label>
-                            <select
-                                value={formData.cohort_id}
-                                onChange={(e) => setFormData({ ...formData, cohort_id: e.target.value })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            >
-                                <option value="">Select a cohort (optional)</option>
-                                {cohorts.map((cohort) => (
-                                    <option key={cohort.id} value={cohort.id}>
-                                        {cohort.name}
-                                    </option>
-                                ))}
-                            </select>
+                            {/* Cohort Dropdown */}
+                            <div className="space-y-3">
+                                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest italic ml-1">
+                                    Assigned Team
+                                </label>
+                                <select
+                                    value={formData.cohort_id}
+                                    onChange={(e) => setFormData({ ...formData, cohort_id: e.target.value })}
+                                    className="w-full px-6 py-4 bg-slate-900/90 border border-white/10 rounded-2xl focus:neon-border-magenta focus:outline-none text-white transition-all cursor-pointer appearance-none font-medium text-sm"
+                                >
+                                    <option value="" className="bg-slate-900 text-slate-500 font-bold">GENERAL ACCESS</option>
+                                    {cohorts.map((cohort) => (
+                                        <option key={cohort.id} value={cohort.id} className="bg-slate-900">
+                                            {cohort.name.toUpperCase()}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
                         </div>
 
                         {/* Members */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Team Members
+                        <div className="pt-6 border-t border-white/5">
+                            <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest italic ml-1 mb-4">
+                                Personnel Invitations
                             </label>
-                            <p className="text-sm text-gray-500 mb-3">
-                                Add team members by their email address. They will receive an invitation to join the project.
-                            </p>
+
                             {error && (
-                                <div className="mb-2 text-red-500 text-sm">{error}</div>
+                                <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-500 text-xs font-bold uppercase tracking-wider animate-shake">
+                                    {error}
+                                </div>
                             )}
-                            <div className="flex gap-2">
-                                <input
-                                    type="email"
-                                    value={memberEmail}
-                                    onChange={(e) => setMemberEmail(e.target.value)}
-                                    onKeyDown={(e) => {
-                                        if (e.key === 'Enter') {
-                                            e.preventDefault();
-                                            handleAddMember();
-                                        }
-                                    }}
-                                    placeholder="Enter member email address"
-                                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                />
+
+                            <div className="flex gap-4 mb-8">
+                                <div className="relative group flex-1">
+                                    <Mail className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-holo-magenta transition-colors" size={18} />
+                                    <input
+                                        type="email"
+                                        value={memberEmail}
+                                        onChange={(e) => setMemberEmail(e.target.value)}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter') {
+                                                e.preventDefault();
+                                                handleAddMember();
+                                            }
+                                        }}
+                                        placeholder="email@example.com"
+                                        className="w-full pl-14 pr-6 py-4 bg-white/5 border border-white/10 rounded-2xl focus:neon-border-magenta focus:outline-none text-white transition-all placeholder-slate-600 font-medium"
+                                    />
+                                </div>
                                 <button
                                     type="button"
                                     onClick={handleAddMember}
-                                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center gap-2"
+                                    className="px-8 bg-holo-magenta text-deep-950 font-black text-[10px] uppercase tracking-widest rounded-2xl hover:shadow-neon-magenta transition-all flex items-center gap-2"
                                 >
-                                    <Plus size={20} />
-                                    Add
+                                    <Plus size={16} />
+                                    Invite
                                 </button>
                             </div>
 
                             {/* Member List */}
                             {members.length > 0 && (
-                                <div className="mt-3 space-y-2">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     {members.map((member, index) => (
                                         <div
                                             key={index}
-                                            className="flex items-center justify-between bg-gray-50 p-3 rounded-md"
+                                            className="flex items-center justify-between bg-white/5 p-4 rounded-xl border border-white/10 group/item hover:border-holo-magenta/30 transition-all"
                                         >
-                                            <div>
-                                                <p className="text-sm font-medium text-gray-900">
-                                                    {member.name}
-                                                </p>
-                                                <p className="text-xs text-gray-500">
-                                                    {member.email}
-                                                </p>
+                                            <div className="flex items-center gap-4">
+                                                <div className="w-10 h-10 bg-holo-magenta/10 border border-holo-magenta/20 text-holo-magenta rounded-full flex-center font-black italic text-xs">
+                                                    {member.name?.charAt(0) || 'M'}
+                                                </div>
+                                                <div>
+                                                    <p className="text-sm font-bold text-white uppercase tracking-tighter italic">{member.name}</p>
+                                                    <p className="text-[10px] text-slate-500 font-medium">{member.email}</p>
+                                                </div>
                                             </div>
                                             <button
                                                 type="button"
                                                 onClick={() => handleRemoveMember(index)}
-                                                className="text-red-500 hover:text-red-700"
+                                                className="p-2 text-slate-500 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all"
+                                                title="Remove Member"
                                             >
                                                 <Trash2 size={18} />
                                             </button>
@@ -335,19 +358,19 @@ const EditProject = () => {
                         </div>
 
                         {/* Action Buttons */}
-                        <div className="flex gap-4 pt-4">
+                        <div className="flex gap-6 pt-10 border-t border-white/5">
                             <button
                                 type="button"
                                 onClick={() => navigate(`/projects/${id}`)}
-                                className="flex-1 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                                className="flex-1 py-5 bg-white/5 text-slate-500 font-black text-[10px] uppercase tracking-widest rounded-2xl border border-white/5 hover:bg-white/10 transition-all"
                             >
                                 Cancel
                             </button>
                             <button
                                 type="submit"
-                                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                                className="flex-1 btn-holo btn-holo-magenta py-5 text-sm"
                             >
-                                Save Changes
+                                Save Project Changes
                             </button>
                         </div>
                     </form>

@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { authAPI } from '../api/auth';
+import { apiClient } from '../api/client';
 
 const AuthContext = createContext(null);
 
@@ -57,10 +58,7 @@ export const AuthProvider = ({ children }) => {
     const logout = async () => {
         try {
             // Call backend to clear the httpOnly cookie
-            await fetch('/auth/logout', {
-                method: 'POST',
-                credentials: 'include',
-            });
+            await apiClient.post('/auth/logout');
         } catch (error) {
             console.error('Logout error:', error);
         } finally {

@@ -31,48 +31,52 @@ class ErrorBoundary extends React.Component {
 
     render() {
         if (this.state.hasError) {
-            // Custom error UI
+            // Custom premium holographic error UI
             return (
-                <div className="min-h-screen bg-gradient-to-br from-gray-50 via-orange-50 to-red-50 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-xl shadow-xl p-8 max-w-md w-full text-center border border-red-200">
-                        <div className="flex justify-center mb-4">
-                            <AlertCircle className="w-16 h-16 text-red-500" />
+                <div className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden bg-[#020617]">
+                    {/* Background Orbs */}
+                    <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-holo-cyan/10 rounded-full blur-[120px]" />
+                    <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-holo-magenta/10 rounded-full blur-[120px]" />
+
+                    <div className="glass-card p-12 w-full max-w-md relative z-10 text-center animate-in fade-in zoom-in duration-700">
+                        <div className="w-20 h-20 bg-red-500/10 border border-red-500/20 rounded-3xl mx-auto flex-center mb-8 shadow-red-500/10">
+                            <AlertCircle className="text-red-500" size={40} />
                         </div>
 
-                        <h1 className="text-2xl font-bold text-gray-900 mb-2">
-                            Something went wrong
+                        <h1 className="text-3xl font-black text-white uppercase italic tracking-tighter mb-4">
+                            System <span className="text-red-500">Failure</span>
                         </h1>
 
-                        <p className="text-gray-600 mb-6">
-                            We're sorry, but something unexpected happened. Please try refreshing the page.
+                        <p className="text-slate-400 text-sm font-medium mb-10 leading-relaxed">
+                            Critical matrix breach detected. The current operational parameters have been suspended due to an unhandled exception.
                         </p>
 
-                        <div className="space-y-3">
+                        <div className="space-y-4">
                             <button
                                 onClick={this.handleRetry}
-                                className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-orange-600 to-red-600 text-white rounded-lg hover:shadow-lg transition-all duration-200 font-medium"
+                                className="w-full btn-holo btn-holo-cyan py-5 text-sm flex-center gap-3"
                             >
-                                <RefreshCw className="w-4 h-4" />
-                                Try Again
+                                <RefreshCw size={16} className={`${this.state.hasError ? 'animate-spin-slow' : ''}`} />
+                                REINITIALIZE SESSION
                             </button>
 
                             <button
                                 onClick={() => window.location.href = '/'}
-                                className="w-full px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                                className="w-full py-4 bg-white/5 border border-white/10 rounded-2xl text-slate-400 font-bold text-[10px] uppercase tracking-widest hover:bg-white/10 transition-all"
                             >
-                                Go Home
+                                ABORT TO TERMINUS
                             </button>
                         </div>
 
                         {import.meta.env.DEV && this.state.error && (
-                            <details className="mt-6 text-left">
-                                <summary className="cursor-pointer text-sm text-gray-500 hover:text-gray-700">
-                                    Error Details (Development Only)
+                            <details className="mt-10 text-left border-t border-white/5 pt-6">
+                                <summary className="cursor-pointer text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-slate-300 transition-colors">
+                                    Error Logs (System Only)
                                 </summary>
-                                <pre className="mt-2 text-xs bg-gray-100 p-3 rounded overflow-auto max-h-32">
-                                    {this.state.error.toString()}
-                                    {this.state.errorInfo.componentStack}
-                                </pre>
+                                <div className="mt-4 text-[10px] bg-black/40 border border-white/5 p-4 rounded-xl overflow-auto max-h-48 font-mono text-red-400/80 leading-relaxed scrollbar-hide">
+                                    <p className="font-bold mb-2">ERR_MSG: {this.state.error.toString()}</p>
+                                    <p className="opacity-60 whitespace-pre-wrap">{this.state.errorInfo.componentStack}</p>
+                                </div>
                             </details>
                         )}
                     </div>

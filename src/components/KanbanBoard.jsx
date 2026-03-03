@@ -17,6 +17,7 @@ import {
 import { useSortable } from '@dnd-kit/sortable';
 import { Plus, Trash2, Edit2, X } from 'lucide-react';
 import { tasksAPI } from '../api/tasks';
+import TimeTracker from './TimeTracker';
 
 // Sortable Task Card Component
 const SortableTaskCard = ({ task, onEdit, onDelete, isReadOnly, canDrag = true }) => {
@@ -74,6 +75,20 @@ const SortableTaskCard = ({ task, onEdit, onDelete, isReadOnly, canDrag = true }
             {task.description && (
                 <p className="text-xs text-gray-600 line-clamp-2">{task.description}</p>
             )}
+            <div className="flex flex-wrap gap-2 mt-2">
+                <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${task.priority === 'Urgent' ? 'bg-red-100 text-red-800' :
+                    task.priority === 'High' ? 'bg-orange-100 text-orange-800' :
+                        task.priority === 'Medium' ? 'bg-blue-100 text-blue-800' :
+                            'bg-gray-100 text-gray-800'
+                    }`}>
+                    {task.priority || 'Medium'}
+                </span>
+                {task.due_date && (
+                    <span className="text-[10px] px-2 py-0.5 rounded-full font-medium bg-purple-100 text-purple-800">
+                        Due: {new Date(task.due_date).toLocaleDateString()}
+                    </span>
+                )}
+            </div>
             {task.assignee && (
                 <p className="text-xs text-gray-500 mt-2">Assigned to: {task.assignee.name}</p>
             )}
@@ -126,7 +141,7 @@ const KanbanColumn = ({ title, tasks, columnId, onAddTask, onEditTask, onDeleteT
 };
 
 // Main Kanban Board Component
-const KanbanBoard = ({ projectId, isReadOnly = false, canDrag = true, projectMembers = [] }) => {
+const KanbanBoard = ({ projectId, isReadOnly = false, canDrag = true, projectMembers = [], sprints = [] }) => {
     const [tasks, setTasks] = useState([]);
     const [activeId, setActiveId] = useState(null);
     const [showTaskModal, setShowTaskModal] = useState(false);
@@ -135,7 +150,14 @@ const KanbanBoard = ({ projectId, isReadOnly = false, canDrag = true, projectMem
         title: '',
         assignee_id: '',
         description: '',
+        priority: 'Medium',
+        due_date: '',
+        sprint_id: ''
     });
+
+    const [filterPriority, setFilterPriority] = useState('');
+    const [filterSprint, setFilterSprint] = useState('');
+    const [filterAssignee, setFilterAssignee] = useState('');
 
     const sensors = useSensors(
         useSensor(PointerSensor),
@@ -164,7 +186,13 @@ const KanbanBoard = ({ projectId, isReadOnly = false, canDrag = true, projectMem
     }, [fetchTasks]);
 
     const getTasksByStatus = (status) => {
-        return tasks.filter((task) => task.status === status);
+        return tasks.filter((task) => {
+            if (task.status !== status) return false;
+            if (filterPriority && task.priority !== filterPriority) return false;
+            if (filterSprint && (task.sprint_id || '').toString() !== filterSprint) return false;
+            if (filterAssignee && (task.assignee_id || '').toString() !== filterAssignee) return false;
+            return true;
+        });
     };
 
     const handleDragStart = (event) => {
@@ -228,6 +256,9 @@ const KanbanBoard = ({ projectId, isReadOnly = false, canDrag = true, projectMem
             title: '',
             assignee_id: '',
             description: '',
+            priority: 'Medium',
+            due_date: '',
+            sprint_id: ''
         });
         setShowTaskModal(true);
     };
@@ -238,6 +269,9 @@ const KanbanBoard = ({ projectId, isReadOnly = false, canDrag = true, projectMem
             title: task.title,
             assignee_id: task.assignee_id || '',
             description: task.description || '',
+            priority: task.priority || 'Medium',
+            due_date: task.due_date ? task.due_date.split('T')[0] : '',
+            sprint_id: task.sprint_id || ''
         });
         setShowTaskModal(true);
     };
@@ -249,6 +283,9 @@ const KanbanBoard = ({ projectId, isReadOnly = false, canDrag = true, projectMem
             title: '',
             assignee_id: '',
             description: '',
+            priority: 'Medium',
+            due_date: '',
+            sprint_id: ''
         });
     };
 
@@ -264,10 +301,15 @@ const KanbanBoard = ({ projectId, isReadOnly = false, canDrag = true, projectMem
             const taskData = {
                 title: taskForm.title,
                 description: taskForm.description,
+                priority: taskForm.priority,
+                due_date: taskForm.due_date || null
             };
 
             if (taskForm.assignee_id) {
                 taskData.assignee_id = parseInt(taskForm.assignee_id);
+            }
+            if (taskForm.sprint_id) {
+                taskData.sprint_id = parseInt(taskForm.sprint_id);
             }
 
             if (editingTask) {
@@ -301,6 +343,57 @@ const KanbanBoard = ({ projectId, isReadOnly = false, canDrag = true, projectMem
 
     return (
         <div className="w-full">
+            {/* Advanced Filters */}
+            <div className="mb-6 flex flex-wrap gap-4 items-center bg-gray-50 p-4 rounded-lg border border-gray-200">
+                <div className="text-sm font-semibold text-gray-700 mr-2 flex items-center gap-2">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg>
+                    Filters
+                </div>
+
+                <select
+                    value={filterPriority}
+                    onChange={e => setFilterPriority(e.target.value)}
+                    className="text-sm border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:border-blue-500"
+                >
+                    <option value="">All Priorities</option>
+                    <option value="Urgent">Urgent</option>
+                    <option value="High">High</option>
+                    <option value="Medium">Medium</option>
+                    <option value="Low">Low</option>
+                </select>
+
+                <select
+                    value={filterSprint}
+                    onChange={e => setFilterSprint(e.target.value)}
+                    className="text-sm border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:border-blue-500"
+                >
+                    <option value="">All Sprints</option>
+                    {sprints && sprints.map(s => (
+                        <option key={s.id} value={s.id}>{s.name}</option>
+                    ))}
+                </select>
+
+                <select
+                    value={filterAssignee}
+                    onChange={e => setFilterAssignee(e.target.value)}
+                    className="text-sm border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:border-blue-500"
+                >
+                    <option value="">All Members</option>
+                    {projectMembers.map(m => (
+                        <option key={m.id} value={m.id}>{m.name}</option>
+                    ))}
+                </select>
+
+                {(filterPriority || filterSprint || filterAssignee) && (
+                    <button
+                        onClick={() => { setFilterPriority(''); setFilterSprint(''); setFilterAssignee(''); }}
+                        className="text-sm text-blue-600 hover:text-blue-800 underline ml-2"
+                    >
+                        Clear Filters
+                    </button>
+                )}
+            </div>
+
             <DndContext
                 sensors={sensors}
                 collisionDetection={closestCorners}
@@ -392,6 +485,40 @@ const KanbanBoard = ({ projectId, isReadOnly = false, canDrag = true, projectMem
                                     </select>
                                 </div>
 
+                                {/* Priority & Due Date */}
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            Priority
+                                        </label>
+                                        <select
+                                            value={taskForm.priority}
+                                            onChange={(e) =>
+                                                setTaskForm({ ...taskForm, priority: e.target.value })
+                                            }
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        >
+                                            <option value="Low">Low</option>
+                                            <option value="Medium">Medium</option>
+                                            <option value="High">High</option>
+                                            <option value="Urgent">Urgent</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            Due Date
+                                        </label>
+                                        <input
+                                            type="date"
+                                            value={taskForm.due_date}
+                                            onChange={(e) =>
+                                                setTaskForm({ ...taskForm, due_date: e.target.value })
+                                            }
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        />
+                                    </div>
+                                </div>
+
                                 {/* Due Date / Note */}
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -407,6 +534,29 @@ const KanbanBoard = ({ projectId, isReadOnly = false, canDrag = true, projectMem
                                         rows="3"
                                     />
                                 </div>
+
+                                {/* Sprint Assignment */}
+                                {sprints && sprints.length > 0 && (
+                                    <div className="mb-4">
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            Sprint
+                                        </label>
+                                        <select
+                                            value={taskForm.sprint_id}
+                                            onChange={(e) =>
+                                                setTaskForm({ ...taskForm, sprint_id: e.target.value })
+                                            }
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        >
+                                            <option value="">Backlog (No Sprint)</option>
+                                            {sprints.map((sprint) => (
+                                                <option key={sprint.id} value={sprint.id}>
+                                                    {sprint.name}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                )}
                             </div>
 
                             <div className="flex gap-3 mt-6">
@@ -425,6 +575,11 @@ const KanbanBoard = ({ projectId, isReadOnly = false, canDrag = true, projectMem
                                 </button>
                             </div>
                         </form>
+
+                        {/* Time Tracker Section - Only show when Edit Mode since task must exist first */}
+                        {editingTask && (
+                            <TimeTracker taskId={editingTask.id} />
+                        )}
                     </div>
                 </div>
             )}
