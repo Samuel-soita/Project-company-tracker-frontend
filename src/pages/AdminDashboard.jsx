@@ -202,7 +202,7 @@ const AdminDashboard = () => {
                         </div>
 
                         <p className="text-slate-400 text-sm mb-6 line-clamp-3 leading-relaxed">
-                            {project.description || 'No system briefing available for this project node.'}
+                            {project.description || 'No system briefing available for this project.'}
                         </p>
 
                         <div className="mt-auto space-y-6">
