@@ -8,6 +8,7 @@ const STATIC_ASSETS = [
     '/',
     '/index.html',
     '/manifest.json',
+    '/vite.svg',
     // Add other static assets as needed
 ];
 
@@ -74,11 +75,13 @@ self.addEventListener('fetch', (event) => {
                         }
 
                         // Cache successful responses
-                        const responseClone = response.clone();
-                        caches.open(DYNAMIC_CACHE)
-                            .then((cache) => {
-                                cache.put(event.request, responseClone);
-                            });
+                        if (event.request.method === 'GET') {
+                            const responseClone = response.clone();
+                            caches.open(DYNAMIC_CACHE)
+                                .then((cache) => {
+                                    cache.put(event.request, responseClone);
+                                });
+                        }
 
                         return response;
                     })
